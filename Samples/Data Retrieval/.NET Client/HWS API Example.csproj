@@ -94,6 +94,7 @@
     <WCFMetadata Include="Service References\" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Documentation\data_retrieval.htm" />
     <Content Include="References\CanaryWebServiceHelper.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
