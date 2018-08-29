@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Sender API Demo</title>
+  <meta charset="UTF-8">
+  <style>
+    * {
+      font-family: "calibri"
+    }
+    
+    h1 {
+      margin:0;
+      padding:0.5rem;
+    }
+    
+    p {
+      margin:0;
+      padding:0.5rem;
+      max-width:600px;
+    }
+    
+    ol {
+      margin:0;
+      padding:0.5rem;
+      padding-left:2.5rem;
+      margin-bottom:1.5rem;
+      max-width:600px;
+    }
+    
+    li {
+      margin:0;
+      padding:0;
+    }
+    
+    button {
+      margin:0;
+      margin-bottom:1rem;
+      margin-left:1rem;
+      padding:0 1rem;
+      width:140px;
+    }
+  </style>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.22.2/moment.min.js"></script>
+  <!--<script src="moment.js"></script>-->
+  <script>
+    function toUtcString(date) {
+      var format = 'YYYY-MM-DD\THH:mm:ss.SSSSSSS';
+      var now = new moment(date);
+      return now.utc().format(format) + 'Z';
+    }
+    
+    $(function() {
+      var userToken = null;
+      var sessionToken = null;
+      var tags = [ // WebAPI is the dataset
+        "WebAPI.Tag1",
+        "WebAPI.Tag2",
+        "WebAPI.Tag3"
+      ];
+      var baseUrl = "http://localhost:55253/api/v1";
+      if(false)
+        baseUrl = "https://localhost:55254/api/v1";
+      
+      var apiMethods = {
+        "getUserToken": function() {
+          $.ajax({
+            url: baseUrl + "/getUserToken",
+            method: "POST",
+            data: JSON.stringify({
+              "username": "name", // ONLY SET WHEN using https:// protocol
+              "password": "secret" // ONLY SET WHEN using https:// protocol
+            })
+          }).done(function(data) {
+            console.log("getUserToken", data);
+            
+            // set user token
+            userToken = data.userToken;
+          });
+        },
+        "revokeUserToken": function() {
+          $.ajax({
+            url: baseUrl + "/revokeUserToken",
+            method: "POST",
+            data: JSON.stringify({
+              "userToken": userToken
+            })
+          }).done(function(data) {
+            console.log("revokeUserToken", data);
+          });
+        },
+        "version": function() {
+          $.ajax({
+            url: baseUrl + "/version",
+            method: "POST",
+            data: JSON.stringify({
+              "userToken": userToken
+            })
+          }).done(function(data) {
+            console.log("version", data);
+          });
+        },
+        "compatibleVersion": function() {
+          $.ajax({
+            url: baseUrl + "/compatibleVersion",
+            method: "POST",
+            data: JSON.stringify({
+              "userToken": userToken
+            })
+          }).done(function(data) {
+            console.log("compatibleVersion", data);
+          });
+        },
+        "getDataSets": function() {
+          $.ajax({
+            url: baseUrl + "/getDataSets",
+            method: "POST",
+            data: JSON.stringify({
+              "userToken": userToken,
+              "historian": "Isaac"
+            })
+          }).done(function(data) {
+            console.log("getDataSets", data);
+          });
+        },
+        "getSessionToken": function() {
+          $.ajax({
+            url: baseUrl + "/getSessionToken",
+            method: "POST",
+            data: JSON.stringify({
+              "userToken": userToken,
+              "clientId": "Test",
+              "historians": ["Isaac"],
+              "disableTimeExention": false,
+              "settings": {
+                "clientTimeout": 300000, // milliseconds (10 seconds)
+                "fileSize": 8,
+                "autoCreateDataSets": true
+              }
+            })
+          }).done(function(data) {
+            console.log("getSessionId", data);
+            
+            sessionToken = data.sessionToken;
+          });
+        },
+        "updateSettings": function() {
+          $.ajax({
+            url: baseUrl + "/updateSettings",
+            method: "POST",
+            data: JSON.stringify({
+              "userToken": userToken,
+              "sessionToken": sessionToken,
+              "settings": {
+                "clientTimeout": 10000, // milliseconds (5 minutes)
+                "fileSize": 16,
+                "autoCreateDataSets": false
+              }
+            })
+          }).done(function(data) {
+            console.log("updateSettings", data);
+          });
+        },
+        "setTransforms": function() {
+          var transforms = {};
+          transforms[tags[0]] = "Value*10";
+          transforms[tags[1]] = "Value*(9/5)+32";
+          
+          $.ajax({
+            url: baseUrl + "/setTransforms",
+            method: "POST",
+            data: JSON.stringify({
+              "userToken": userToken,
+              "sessionToken": sessionToken,
+              "transforms": transforms
+            })
+          }).done(function(data) {
+            console.log("setTransforms", data);
+          });
+        },
+        "configureTags": function() {
+          var tags = tags = {
+            "WebAPI.Tag1": {
+              "transform": "If(Value % 2 == 0, '!Value=true,Quality=0!', Value*10)",
+              "normalize": "100 milliseconds"
+            },
+            "WebAPI.Tag2": {
+              "transform": "If(Value % 2 == 0, '!Value=Value*(9/5)+32,Quality=0!', Value)",
+              "normalize": "0:00:01"
+            },
+            "WebAPI.Tag3": {
+              "transform": "If(Value == 5, '!Value =Hello World,Quality=0!', Value)",
+              "normalize": "1 second"
+            }
+          };
+          
+          $.ajax({
+            url: baseUrl + "/configureTags",
+            method: "POST",
+            data: JSON.stringify({
+              "userToken": userToken,
+              "sessionToken": sessionToken,
+              "tags": tags
+            })
+          }).done(function(data) {
+            console.log("configureTags", data);
+          });
+        },
+        "storeData": function() {
+          var tvqs = {};
+          var properties = {};
+          var annotations = {};
+          
+          var tvqCount = 10;
+          var tvqInterval = 1000;
+          var startDate = new Date(new Date().getTime() - tvqCount * tvqInterval);
+          for(var i = 0; i < tags.length; i++) {
+            var tag = tags[i];
+            tvqs[tag] = [];
+            for(var j = 0; j < tvqCount; j++) {
+              var timestamp = new Date(startDate.getTime() + j * tvqInterval)
+              tvqs[tag].push([
+                toUtcString(timestamp), // timestamp
+                j, // value
+                192 // OPC quality, 192 is a "Good" OPC quality
+                // ADDITIONAL NOTE: the terms "Good", "Bad", "NoData" can be used for the quality and will be translated to the proper OPC qualities
+              ]);
+            }
+          }
+          console.log("TVQs", tvqs);
+          
+          var propertyCount = 10;
+          var propertyInterval = 1000;
+          var propertyDate = new Date(new Date().getTime() - propertyCount * propertyInterval);
+          for(var i = 0; i < tags.length; i++) {
+            var tag = tags[i];
+            properties[tag] = [];
+            for(var j = 0; j < propertyCount; j++) {
+              var timestamp = new Date(startDate.getTime() + j * propertyInterval)
+              properties[tag].push([
+                "Test Property #" + j, // property name
+                toUtcString(timestamp), // timestamp
+                j, // value
+                "Good" // quality, the terms "Good", "Bad", "NoData" can be used and will be translated to the proper OPC qualities
+              ]);
+            }
+          }
+          console.log("Properties", properties);
+          
+          $.ajax({
+            url: baseUrl + "/storeData",
+            method: "POST",
+            data: JSON.stringify({
+              "userToken": userToken,
+              "sessionToken": sessionToken,
+              "tvqs": tvqs,
+              "properties": properties,
+              "annotations": annotations
+            })
+          }).done(function(data) {
+            console.log('storeData', data);
+          });
+        },
+        "noData": function() {
+          $.ajax({
+            url: baseUrl + "/noData",
+            method: "POST",
+            data: JSON.stringify({
+              "userToken": userToken,
+              "sessionToken": sessionToken,
+              //"tagIds": tagIds
+              "tags": tags
+            })
+          }).done(function(data) {
+            console.log("noData", data);
+          });
+        },
+        "createNewFile": function() {
+          $.ajax({
+            url: baseUrl + "/createNewFile",
+            method: "POST",
+            data: JSON.stringify({
+              "userToken": userToken,
+              "sessionToken": sessionToken,
+              "dataSet": "WebAPI",
+              "fileTime": toUtcString(new Date())
+            })
+          }).done(function(data) {
+            console.log("createNewFile", data);
+          });
+        },
+        "fileRollOver": function() {
+          $.ajax({
+            url: baseUrl + "/fileRollOver",
+            method: "POST",
+            data: JSON.stringify({
+              "userToken": userToken,
+              "sessionToken": sessionToken,
+              "dataSet": "WebAPI",
+              "fileTime": toUtcString(new Date())
+            })
+          }).done(function(data) {
+            console.log("fileRollOver", data);
+          });
+        },
+        "getErrors": function() {
+          $.ajax({
+            url: baseUrl + "/getErrors",
+            method: "POST",
+            data: JSON.stringify({
+              "userToken": userToken,
+              "sessionToken": sessionToken
+            })
+          }).done(function(data) {
+            console.log("getErrors", data);
+          });
+        },
+        "keepAlive": function() {
+          $.ajax({
+            url: baseUrl + "/keepAlive",
+            method: "POST",
+            data: JSON.stringify({
+              "userToken": userToken,
+              "sessionToken": sessionToken
+            })
+          }).done(function(data) {
+            console.log("keepAlive", data);
+          });
+        },
+        "revokeSessionToken": function() {
+          $.ajax({
+            url: baseUrl + "/revokeSessionToken",
+            method: "POST",
+            data: JSON.stringify({
+              "userToken": userToken,
+              "sessionToken": sessionToken
+            })
+          }).done(function(data) {
+            console.log("revokeSessionToken", data);
+            
+            sessionToken = null;
+          });
+        },
+        "badMethodName": function() {
+          $.ajax({
+            url: baseUrl + "/badMethodName",
+            method: "POST",
+            data: JSON.stringify({
+              "userToken": userToken,
+              "sessionToken": sessionToken
+            })
+          }).done(function(data) {
+            console.log("badMethodName", data);
+          });
+        }
+      };
+      
+      // add buttons to screen
+      var buttons = "";
+      for(var key in apiMethods)
+        buttons += '<button id="' + key + '">' + key + '</button><br>';
+      $('body').append(buttons);
+      
+      // process button click event
+      $("body").on("click", "button", function(e) {
+        var id = $(this).attr("id");
+        apiMethods[id]();
+      });
+      
+      var highlight = [
+        "getUserToken",
+        "getSessionToken",
+        "storeData",
+        "keepAlive"
+      ];
+      for(var i = 0; i < highlight.length; i++) {
+        $('button:contains("' + highlight[i] + '")').css({
+          'font-weight': 'bold',
+          'text-decoration': 'underline'
+        });
+      }
+    });
+  </script>
+</head>
+<body>
+  <h1>Sender API Demo</h1>
+  <p>Before using the API, the proper endpoints must be turned on to listen for requests.</p>
+  <ol>
+    <li>Open the "Canary Admin" program.</li>
+    <li>Click on the "Sender" info box on the home screen.</li>
+    <li>Click on "Configuration" in the bottom tab control.</li>
+    <li>Click on "Endpoints" in the side tab control.</li>
+    <li>Turn on the (Web API) endpoints that you will use. Note the port numbers. These are the ports that will be listening for the Web API requests.</li>
+  </ol>
+  <p>Open the console window to view the results of each method call. View page source to see how the methods are called.</p>
+  <ol>
+    <li>Call "GetUserToken" and keep the "userToken" for subsequent calls.</li>
+    <li>Call "GetSessionToken" and keep the "sessionToken" for subsequent calls.</li>
+    <li>Call "StoreData" with a valid "userToken" and "sessionToken" as often as necessary.</li>
+    <li>Call "KeepAlive" every 15-30 seconds for long running tasks to prevent tokens from expiring,<br> <b>OR</b> make calls to revoke tokens when finished writing data.</li>
+  </ol>
+</body>
+</html>
