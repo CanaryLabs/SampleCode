@@ -19,8 +19,8 @@ Here you can download code samples for writing custom integrations with the Cana
 [Javascript Sample Client](https://github.com/CanaryLabs/SampleCode/tree/master/Samples/Data%20Retrieval/Web%20API/Javascript)
 
 [API Reference Documentation (write your own client)](https://docs.canarylabs.com:55236/help)
-### Reading data natively .NET client
-[.NET Client](https://github.com/CanaryLabs/SampleCode/tree/master/Samples/Data%20Retrieval/.NET%20Client)
+### Reading data natively (.NET client)
+Coming Soon...
 
 ## Other Canary Labs help links
 Help Center (KnowledgeBase)
