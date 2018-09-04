@@ -20,7 +20,7 @@ Here you can download code samples for writing custom integrations with the Cana
 
 [API Reference Documentation (write your own client)](https://docs.canarylabs.com:55236/help)
 ### Reading data natively (.NET client)
-Coming Soon...
+[.NET Client](https://github.com/CanaryLabs/SampleCode/tree/master/Samples/Data%20Retrieval/.NET%20Client)
 
 ## Other Canary Labs help links
 Help Center (KnowledgeBase)
