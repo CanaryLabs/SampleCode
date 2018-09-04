@@ -11,9 +11,10 @@ namespace SAF_Examples
 {
     public class HelperSessionExample
     {
-        string host = "localhost";
-        HelperSession session = null;
-        Dictionary<string, int> tagMap = new Dictionary<string, int>();
+        private string _historian = "localhost";
+        private string _dataset = "SessionExample";
+        private HelperSession _session = null;
+        private Dictionary<string, int> _tagMap = new Dictionary<string, int>();
 
         public Setting BuildSetting(string name, object value)
         {
@@ -25,18 +26,18 @@ namespace SAF_Examples
 
         public void Connect()
         {
-            if (session != null)
+            if (_session != null)
                 return;
 
-            session = new HelperSession();
+            _session = new HelperSession();
 
             // arbitrary settings used for example code
             string clientId = "SessionExample";
             List<Setting> settings = new List<Setting>();
             settings.Add(BuildSetting("AutoCreateDataSets", true));
             settings.Add(BuildSetting("PacketDelay", 500));
-       
-            string result = session.Connect(host, clientId, settings.ToArray());
+
+            string result = _session.Connect(_historian, clientId, settings.ToArray());
         }
 
         public void GetSessionId()
@@ -50,21 +51,20 @@ namespace SAF_Examples
             Connect();
 
             int tagCount = 1;
-            if (tagMap.Count != tagCount)
+            if (_tagMap.Count != tagCount)
             {
-                string dataSet = "SessionExample";
                 Tag[] tags = new Tag[tagCount];
                 for (int i = 0; i < tagCount; i++)
                 {
                     Tag tag = new Tag();
-                    tag.name = String.Format("{0}.Tag {1:D4}", dataSet, i + 1);
+                    tag.name = String.Format("{0}.Tag {1:D4}", _dataset, i + 1);
                     tag.transformEquation = null;
                     tag.timeExtension = true;
                     tags[i] = tag;
                 }
 
                 int[] tagIds;
-                string error = session.GetTagIds(tags, out tagIds);
+                string error = _session.GetTagIds(tags, out tagIds);
                 if (error != null)
                 {
                     // handle error
@@ -72,10 +72,10 @@ namespace SAF_Examples
                 }
 
                 for (int i = 0; i < tagCount; i++)
-                    tagMap.Add(tags[i].name, tagIds[i]);
+                    _tagMap.Add(tags[i].name, tagIds[i]);
             }
 
-            return tagMap;
+            return _tagMap;
         }
 
         public string StoreData()
@@ -155,7 +155,7 @@ namespace SAF_Examples
             //string result = session.StoreAnnotations(annotations.ToArray());
 
             // send tvqs, properties, and annotations in this call
-            string result = session.StoreData(tvqs.ToArray(), properties.ToArray(), annotations.ToArray());
+            string result = _session.StoreData(tvqs.ToArray(), properties.ToArray(), annotations.ToArray());
 
             return result;
         }
@@ -182,7 +182,7 @@ namespace SAF_Examples
                     tvq.timestamp = now.AddTicks(i);
                     tvq.value = i % 100;
                     tvq.quality = StandardQualities.Good;
-                    session.AddTVQ(tvq);
+                    _session.AddTVQ(tvq);
                 }
 
                 // add property data
@@ -193,7 +193,7 @@ namespace SAF_Examples
                 highScale.name = StandardPropertyNames.ScaleHigh;
                 highScale.value = 100;
                 highScale.quality = StandardQualities.Good;
-                session.AddProperty(highScale);
+                _session.AddProperty(highScale);
 
                 // add property data
                 Property lowScale = new Property();
@@ -203,7 +203,7 @@ namespace SAF_Examples
                 lowScale.name = StandardPropertyNames.ScaleLow;
                 lowScale.value = 0;
                 lowScale.quality = StandardQualities.Good;
-                session.AddProperty(lowScale);
+                _session.AddProperty(lowScale);
 
                 // add property data
                 Property sampleInterval = new Property();
@@ -213,7 +213,7 @@ namespace SAF_Examples
                 sampleInterval.name = StandardPropertyNames.SampleInterval;
                 sampleInterval.value = TimeSpan.FromSeconds(1);
                 sampleInterval.quality = StandardQualities.Good;
-                session.AddProperty(sampleInterval);
+                _session.AddProperty(sampleInterval);
 
                 // add annotation
                 Annotation annotation = new Annotation();
@@ -222,18 +222,18 @@ namespace SAF_Examples
                 //annotation.createdAt = now; // only necessary if creation time differs from annotation timestamp
                 annotation.user = "Example User";
                 annotation.value = "Example Annotation";
-                session.AddAnnotation(annotation);
+                _session.AddAnnotation(annotation);
             }
 
             int storedTVQs;
             int storedProperties;
             int storedAnnotations;
-            return session.FlushData(out storedTVQs, out storedProperties, out storedAnnotations);
+            return _session.FlushData(out storedTVQs, out storedProperties, out storedAnnotations);
         }
 
         public string Disconnect()
         {
-            return session.Disconnect();
+            return _session.Disconnect();
         }
     }
 }

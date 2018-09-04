@@ -11,10 +11,17 @@ namespace SAF_Examples
 {
     public class RawClientExample
     {
-        string host = "localhost"; // necessary when using named pipe binding (other bindings could be configured if necessary)
-        SAFSenderServiceContractClient client = null;
-        string sessionId = null;
-        Dictionary<string, int> tagMap = new Dictionary<string, int>();
+        #region Private Members
+
+        private string _historian = "localhost"; // necessary when using named pipe binding (other bindings could be configured if necessary)
+        private string _dataset = "RawExample";
+        private SAFSenderServiceContractClient _client = null;
+        private string _sessionId = null;
+        private Dictionary<string, int> _tagMap = new Dictionary<string, int>();
+
+        #endregion
+
+        #region Private Methods
 
         static private NetNamedPipeBinding CreateNamedPipeBindingBase()
         {
@@ -32,7 +39,7 @@ namespace SAF_Examples
 
         private void Connect()
         {
-            if (client == null)
+            if (_client == null)
             {
                 NetNamedPipeBinding pipeBinding = CreateNamedPipeBindingBase();
                 pipeBinding.Security.Mode = NetNamedPipeSecurityMode.None;
@@ -41,15 +48,28 @@ namespace SAF_Examples
                 // host and port are ignored because this is always local
                 string address = "net.pipe://localhost/saf/sender/anonymous";
                 EndpointAddress endpoint = new EndpointAddress(new Uri(address));
-                client = new SAFSenderServiceContractClient(binding, endpoint);
+                _client = new SAFSenderServiceContractClient(binding, endpoint);
             }
         }
+
+        #endregion
+
+        #region Public Properties
+
+        public string SessionId
+        {
+            get { return _sessionId; }
+        }
+
+        #endregion
+
+        #region Public Methods
 
         public string InterfaceVersion()
         {
             Connect();
 
-            return client.Version();
+            return _client.Version();
         }
 
         public string[] GetDataSets()
@@ -57,9 +77,8 @@ namespace SAF_Examples
             Connect();
 
             bool failed;
-            string historian = host;
 
-            string[] results = client.GetDataSets(out failed, historian);
+            string[] results = _client.GetDataSets(out failed, _historian);
             if (failed)
             {
                 // handle error
@@ -81,10 +100,9 @@ namespace SAF_Examples
         {
             Connect();
 
-            if (sessionId == null)
+            if (_sessionId == null)
             {
                 bool failed;
-                string historian = host;
                 string clientId = "RawExample";
 
                 // arbitrary settings used for example code
@@ -93,17 +111,17 @@ namespace SAF_Examples
                 settings.Add(BuildSetting("PacketDelay", 500));
                 settings.Add(BuildSetting("TrackErrors", true));
 
-                string result = client.GetSessionId(out failed, historian, clientId, settings.ToArray());
+                string result = _client.GetSessionId(out failed, _historian, clientId, settings.ToArray());
                 if (failed)
                 {
                     // handle error
                     string error = result;
                 }
                 else
-                    sessionId = result;
+                    _sessionId = result;
             }
 
-            return sessionId;
+            return _sessionId;
         }
 
         public string[] UpdateSettings()
@@ -118,7 +136,7 @@ namespace SAF_Examples
             settings.Add(BuildSetting("PacketDelay", 0));
             settings.Add(BuildSetting("TrackErrors", false));
 
-            string[] results = client.UpdateSettings(out failed, sessionId, settings.ToArray());
+            string[] results = _client.UpdateSettings(out failed, sessionId, settings.ToArray());
             if (failed)
             {
                 foreach (string result in results)
@@ -139,23 +157,21 @@ namespace SAF_Examples
             Connect();
 
             int tagCount = 4;
-            if (tagMap.Count != tagCount)
+            if (_tagMap.Count != tagCount)
             {
-                bool failed;
-                string sessionId = GetSessionId();
-
-                string dataSet = "RawExample";
                 List<Tag> tags = new List<Tag>();
                 for (int i = 0; i < tagCount; i++)
                 {
                     Tag tag = new Tag();
-                    tag.name = String.Format("{0}.Tag {1:D4}", dataSet, i + 1);
+                    tag.name = String.Format("{0}.Tag {1:D4}", _dataset, i + 1);
                     tag.transformEquation = "Value * 10";
                     tag.timeExtension = true;
                     tags.Add(tag);
                 }
 
-                object[] results = client.GetTagIds(out failed, sessionId, tags.ToArray());
+                bool failed;
+                string sessionId = GetSessionId();
+                object[] results = _client.GetTagIds(out failed, sessionId, tags.ToArray());
                 if (failed)
                 {
                     for (int i = 0; i < tags.Count; i++)
@@ -167,7 +183,7 @@ namespace SAF_Examples
                             string error = (string)result;
                         }
                     }
-                    return tagMap;
+                    return _tagMap;
                 }
                 else
                 {
@@ -176,12 +192,12 @@ namespace SAF_Examples
                     {
                         string tagName = tags[i].name;
                         int id = (int)results[i];
-                        tagMap.Add(tagName, id);
+                        _tagMap.Add(tagName, id);
                     }
                 }
             }
 
-            return tagMap;
+            return _tagMap;
         }
 
         public string StoreData()
@@ -194,6 +210,7 @@ namespace SAF_Examples
 
             // create data to store
             DateTime now = DateTime.Now;
+            string sessionId = GetSessionId();
             Dictionary<string, int> tagIds = GetTagIds();
             foreach (KeyValuePair<string, int> pair in tagIds)
             {
@@ -242,12 +259,11 @@ namespace SAF_Examples
             }
 
             bool failed;
-            string sessionId = GetSessionId();
             TVQ[] tvqs = tvqsList.ToArray();
             Property[] properties = propertiesList.ToArray();
             Annotation[] annotations = annotationsList.ToArray();
 
-            string result = client.StoreData(out failed, sessionId, tvqs, properties, annotations);
+            string result = _client.StoreData(out failed, sessionId, tvqs, properties, annotations);
             if (failed)
             {
                 // handle error
@@ -265,7 +281,7 @@ namespace SAF_Examples
             string sessionId = GetSessionId();
             Dictionary<string, int> tagIds = GetTagIds();
 
-            return client.NoData(out failed, sessionId, tagIds.Values.ToArray());
+            return _client.NoData(out failed, sessionId, tagIds.Values.ToArray());
         }
 
         public string CreateNewFile()
@@ -278,7 +294,7 @@ namespace SAF_Examples
             newFile.dataSet = "RawExample";
             newFile.fileTime = DateTime.MinValue;
 
-            string result = client.CreateNewFile(out failed, sessionId, newFile);
+            string result = _client.CreateNewFile(out failed, sessionId, newFile);
             if (failed)
             {
                 // handle error
@@ -298,7 +314,7 @@ namespace SAF_Examples
             rollOverFile.dataSet = "RawExample";
             rollOverFile.fileTime = DateTime.MinValue;
 
-            string result = client.FileRollOver(out failed, sessionId, rollOverFile);
+            string result = _client.FileRollOver(out failed, sessionId, rollOverFile);
             if (failed)
             {
                 // handle error
@@ -316,7 +332,7 @@ namespace SAF_Examples
             Errors errors;
             string sessionId = GetSessionId();
 
-            string result = client.GetErrors(out failed, out errors, sessionId);
+            string result = _client.GetErrors(out failed, out errors, sessionId);
             if (failed)
             {
                 // handle error
@@ -328,10 +344,10 @@ namespace SAF_Examples
 
         public string ReleaseSession()
         {
-            if ((client != null) && (sessionId != null))
+            if ((_client != null) && (_sessionId != null))
             {
                 bool failed;
-                string result = client.ReleaseSession(out failed, sessionId);
+                string result = _client.ReleaseSession(out failed, _sessionId);
                 if (failed)
                 {
                     // handle error
@@ -339,13 +355,15 @@ namespace SAF_Examples
                 }
 
                 // reset stored variables
-                this.sessionId = null;
-                this.tagMap.Clear();
+                this._sessionId = null;
+                this._tagMap.Clear();
 
                 return result;
             }
 
             return null;
         }
+
+        #endregion
     }
 }

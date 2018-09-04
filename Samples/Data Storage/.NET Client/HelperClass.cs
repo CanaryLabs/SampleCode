@@ -11,10 +11,16 @@ namespace SAF_Examples
 {
     public class HelperClassExample
     {
-        string host = "localhost"; // necessary when using named pipe binding (other bindings could be configured if necessary)
-        SAFSenderServiceContractClient client = null;
-        string sessionId = null;
-        Dictionary<string, int> tagMap = new Dictionary<string, int>();
+        #region Private Members
+
+        private string _historian = "localhost"; // necessary when using named pipe binding (other bindings could be configured if necessary)
+        private SAFSenderServiceContractClient _client = null;
+        private string _sessionId = null;
+        private Dictionary<string, int> _tagMap = new Dictionary<string, int>();
+
+        #endregion
+
+        #region Public Methods
 
         public Setting BuildSetting(string name, object value)
         {
@@ -28,10 +34,9 @@ namespace SAF_Examples
         {
             Connect();
 
-            if (sessionId == null)
+            if (_sessionId == null)
             {
                 bool failed;
-                string historian = host;
                 string clientId = "HelperExample";
 
                 // arbitrary settings used for example code
@@ -40,28 +45,28 @@ namespace SAF_Examples
                 settings.Add(BuildSetting(SettingNames.PacketDelay, 500));
                 settings.Add(BuildSetting(SettingNames.TrackErrors, true));
 
-                string result = client.GetSessionId(out failed, historian, clientId, settings.ToArray());
+                string result = _client.GetSessionId(out failed, _historian, clientId, settings.ToArray());
                 if (failed)
                 {
                     // handle error
                     string error = result;
                 }
                 else
-                    sessionId = result;
+                    _sessionId = result;
             }
 
-            return sessionId;
+            return _sessionId;
         }
 
         public void Connect()
         {
-            if (client == null)
+            if (_client == null)
             {
                 ConnectionType connectionType = ConnectionType.NetPipe_Anonymous;
                 string host = null;
                 string usernameCredentials = null;
                 string passwordCredentials = null;
-                HelperClass.Connect(connectionType, host, usernameCredentials, passwordCredentials, out client);
+                HelperClass.Connect(connectionType, host, usernameCredentials, passwordCredentials, out _client);
             }
         }
 
@@ -70,7 +75,7 @@ namespace SAF_Examples
             Connect();
 
             int tagCount = 4;
-            if (tagMap.Count != tagCount)
+            if (_tagMap.Count != tagCount)
             {
                 bool failed;
                 string sessionId = GetSessionId();
@@ -87,7 +92,7 @@ namespace SAF_Examples
                 }
 
                 // no time extension
-                object[] results = HelperClass.GetTagIds(out failed, client, sessionId, tags);
+                object[] results = HelperClass.GetTagIds(out failed, _client, sessionId, tags);
 
                 if (failed)
                 {
@@ -100,7 +105,7 @@ namespace SAF_Examples
                             string error = (string)result;
                         }
                     }
-                    return tagMap;
+                    return _tagMap;
                 }
                 else
                 {
@@ -108,12 +113,12 @@ namespace SAF_Examples
                     for (int i = 0; i < tagCount; i++)
                     {
                         int id = (int)results[i];
-                        tagMap.Add(tags[i].name, id);
+                        _tagMap.Add(tags[i].name, id);
                     }
                 }
             }
 
-            return tagMap;
+            return _tagMap;
         }
 
         public string StoreData()
@@ -126,6 +131,7 @@ namespace SAF_Examples
 
             // create data to store
             DateTime now = DateTime.Now;
+            string sessionId = GetSessionId();
             Dictionary<string, int> tagIds = GetTagIds();
             foreach (KeyValuePair<string, int> pair in tagIds)
             {
@@ -186,7 +192,7 @@ namespace SAF_Examples
             int tvqsStored;
             int propertiesStored;
             int annotationsStored;
-            string sessionId = GetSessionId();
+
             TVQ[] tvqs = tvqsList.ToArray();
             Property[] properties = propertiesList.ToArray();
             Annotation[] annotations = annotationsList.ToArray();
@@ -201,14 +207,14 @@ namespace SAF_Examples
             //string result = SAF_HelperClass.StoreData(client, sessionId, annotations, out annotationsStored);
 
             // send tvqs, properties, and annotations in this call
-            string result = HelperClass.StoreData(client, sessionId, tvqs, properties, annotations, out tvqsStored, out propertiesStored, out annotationsStored);
+            string result = HelperClass.StoreData(_client, sessionId, tvqs, properties, annotations, out tvqsStored, out propertiesStored, out annotationsStored);
 
             return result;
         }
 
         public bool IsLocalhost()
         {
-            bool result = HelperClass.IsLocalhost(host);
+            bool result = HelperClass.IsLocalhost(_historian);
             return result;
         }
 
@@ -226,10 +232,10 @@ namespace SAF_Examples
 
         public string ReleaseSession()
         {
-            if ((client != null) && (sessionId != null))
+            if ((_client != null) && (_sessionId != null))
             {
                 bool failed;
-                string result = client.ReleaseSession(out failed, sessionId);
+                string result = _client.ReleaseSession(out failed, _sessionId);
                 if (failed)
                 {
                     // handle error
@@ -237,13 +243,15 @@ namespace SAF_Examples
                 }
 
                 // reset stored variables
-                this.sessionId = null;
-                this.tagMap.Clear();
+                _sessionId = null;
+                _tagMap.Clear();
 
                 return result;
             }
 
             return null;
         }
+
+        #endregion
     }
 }
