@@ -12,9 +12,6 @@ Here you can download code samples for writing custom integrations with the Cana
 ### Writing data natively (.NET Client)
 [.NET Client](https://github.com/CanaryLabs/SampleCode/tree/master/Samples/Data%20Storage/.NET%20Client)
 
-### Writing data via PHP (SOAP Client)
-[PHP Client](https://github.com/CanaryLabs/SampleCode/tree/master/Samples/Data%20Storage/Soap%20API/php)
-
 ### Reading data via the web API (http/json)
 [Javascript Sample Client](https://github.com/CanaryLabs/SampleCode/tree/master/Samples/Data%20Retrieval/Web%20API/Javascript)
 
