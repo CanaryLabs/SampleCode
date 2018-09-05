@@ -4,21 +4,22 @@
   <title>Views API Demo</title>
   <meta charset="UTF-8">
   <style>
+    html, body {
+      padding:0;
+      margin:0;
+    }
     * {
       font-family: "calibri"
     }
-    
     h1 {
       margin:0;
       padding:0.5rem;
     }
-    
     p {
       margin:0;
       padding:0.5rem;
       max-width:600px;
     }
-    
     ol {
       margin:0;
       padding:0.5rem;
@@ -26,341 +27,394 @@
       margin-bottom:1.5rem;
       max-width:600px;
     }
-    
     li {
       margin:0;
       padding:0;
     }
-    
     button {
       margin:0;
       margin-bottom:1rem;
-      margin-left:1rem;
       padding:0 1rem;
       width:140px;
     }
+    #screen-left {
+      position:absolute;
+      left:0;
+      width:50%;
+      height:100%;
+      overflow:auto;
+      box-sizing:border-box;
+      border-right:1px solid rgba(0,0,0,0.2);
+      padding:1rem;
+    }
+    #screen-right {
+      position:absolute;
+      left:50%;
+      width:50%;
+      height:100%;
+      overflow:auto;
+      border-right:2px solid #555;
+      box-sizing:border-box;
+      padding:1rem;
+    }
+    #main-script-container {
+      white-space:pre;
+      background:#eee;
+      font-family:monospace;
+    }
+    #script-actions h3 {
+      text-align:center;
+    }
+    #script-actions > div {
+      padding:0rem 1rem;
+      background:#eee;
+      display:inline-block;
+      vertical-align:top;
+      margin-right:0.5rem;
+    }
+    #script-actions #primary-methods button {
+      font-weight:bold;
+      text-decoration:underline;
+    }
   </style>
+  <!--
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  -->
+  
+  <script src="jquery.min.js"></script>
+  
+  <script id="main-script">
+    // variables
+    var _userToken = null;
+    var _liveDataToken = null;
+    var _tags = [];
+    var _baseUrls = [
+      "http://localhost:55235/api/v1",
+      "https://localhost:55236/api/v1"
+    ];
+    var _baseUrl = _baseUrls[0];
+    
+    // api methods
+    var _apiMethods = [{
+      "getTimeZones": function() {
+        $.ajax({
+          url: _baseUrl + "/getTimeZones",
+          method: "POST"
+        }).done(function(data) {
+          console.log("getTimeZones", data);
+        });
+      },
+      "getUserToken": function() {
+        $.ajax({
+          url: _baseUrl + "/getUserToken",
+          method: "POST",
+          data: JSON.stringify({
+            "application": "Web API Test",
+            "timeZone": "Eastern Standard Time", //"Central Standard Time",
+            "username": "name", // ONLY SET WHEN using https:// protocol
+            "password": "secret" // ONLY SET WHEN using https:// protocol
+          })
+        }).done(function(data) {
+          console.log("getUserToken", data);
+          
+          // set user token
+          _userToken = data.userToken;
+        });
+      },
+      "browseTags": function(continuation) {
+        $.ajax({
+          url: _baseUrl + "/browseTags",
+          method: "POST", 
+          data: JSON.stringify({
+            "userToken": _userToken,
+            "deep": true,
+            "search": "{Diagnostics}"
+            //"path": "optional",
+            //"maxSize": 1000,
+            //"continuation": continuation || null
+          })
+        }).done(function(data) {
+          console.log("browseTags", data);
+          
+          // recursively browse more tags
+          //if(data.continuation != null)
+          //  _apiMethods[0]["browseTags"](data.continuation);
+          
+          // set tags
+          _tags = data.tags;
+        });
+      },
+      "getCurrentValues": function() {
+        if(_tags.length == 0) {
+          alert('Call "BrowseTags" first to build an array of tags used to get data.');
+          return;
+        }
+        
+        $.ajax({
+          url: _baseUrl + "/getTagData",
+          method: "POST",
+          data: JSON.stringify({
+            "userToken": _userToken,
+            "tags": _tags
+            // NOTICE: do not include any additional parameters when requesting current value
+          })
+        }).done(function(data) {
+          console.log("getCurrentValues", data);
+        });
+      },
+      "getRawData": function(continuation) {
+        if(_tags.length == 0) {
+          alert('Call "BrowseTags" first to build an array of tags used to get data.');
+          return;
+        }
+        
+        // forward processed data
+        $.ajax({
+          url: _baseUrl + "/getTagData",
+          method: "POST",
+          data: JSON.stringify({
+            "userToken": _userToken,
+            "tags": _tags,
+            "startTime": "Now - 24 Hours", //"2017-12-01T12:00:00.0000000",
+            "endTime": "Now", //"2017-12-14T12:00:00.0000000",
+            "maxSize": 10000,
+            "continuation": continuation || null
+            // NOTICE: do not include aggregate parameters when requesting raw data
+          })
+        }).done(function(data) {
+          console.log("getRawData", data);
+          
+          // call back into function if we have a continuation
+          if(data.continuation != null) {
+            console.log("CONTINUATION: getRawData", data.continuation);
+            _apiMethods[0]["getRawData"](data.continuation);
+          }
+          else
+            console.log("FINISHED: getRawData");
+        }).fail(function(error) {
+          console.log("error", error);
+        });
+      },
+      "getProcessedData": function(continuation) {
+        if(_tags.length == 0) {
+          alert('Call "BrowseTags" first to build an array of tags used to get data.');
+          return;
+        }
+        
+        // forward processed data
+        $.ajax({
+          url: _baseUrl + "/getTagData",
+          method: "POST",
+          data: JSON.stringify({
+            "userToken": _userToken,
+            "tags": _tags,
+            "startTime": "Now - 1 Day", //"2017-12-01T12:00:00.0000000",
+            "endTime": "Now", //"2017-12-14T12:00:00.0000000",
+            "aggregateName": "TimeAverage2",
+            "aggregateInterval": "1 Hour",
+            "maxSize": 10000,
+            "continuation": continuation || null
+          })
+        }).done(function(data) {
+          console.log("getProcessedData", data);
+          
+          // call back into function if we have a continuation
+          if(data.continuation != null) {
+            console.log("CONTINUATION: getProcessedData", data.continuation);
+            _apiMethods[0]["getProcessedData"](data.continuation);
+          }
+          else
+            console.log("FINISHED: getProcessedData");
+        }).fail(function(error) {
+          console.log("error", error);
+        });
+      },
+      "revokeUserToken": function() {
+        $.ajax({
+          url: _baseUrl + "/revokeUserToken",
+          method: "POST",
+          data: JSON.stringify({
+            "userToken": _userToken
+          })
+        }).done(function(data) {
+          console.log("revokeUserToken", data);
+          
+          _userToken = null;
+        });
+      },
+    }, {
+      "browseNodes": function(path) {
+        $.ajax({
+          url: _baseUrl + "/browseNodes",
+          method: "POST",
+          data: JSON.stringify({
+            "userToken": _userToken,
+            "path": path || ""
+          })
+        }).done(function(data) {
+          console.log("browseNodes", data);
+          
+          // recursively browse into the first node of each request
+          var nodes = data.nodes;
+          var keys = Object.keys(nodes);
+          if(keys.length > 0) {
+            var node = nodes[keys[0]];
+            if(node.hasNodes)
+              _apiMethods[1]["browseNodes"](node.fullPath);
+          }
+        });
+      },
+      "getAggregates": function() {
+        $.ajax({
+          url: _baseUrl + "/getAggregates",
+          method: "POST",
+          data: JSON.stringify({
+            "userToken": _userToken
+          })
+        }).done(function(data) {
+          console.log("getAggregates", data);
+        });
+      },
+      "getQualities": function(qualities) {
+        $.ajax({
+          url: _baseUrl + "/getQualities",
+          method: "POST",
+          data: JSON.stringify({
+            "userToken": _userToken,
+            "qualities": qualities != undefined ? qualities : [
+              192,
+              "193",
+              32768
+            ]
+          })
+        }).done(function(data) {
+          console.log("getQualities", data);
+        });
+      },
+      "getTagProperties": function() {
+        $.ajax({
+          url: _baseUrl + "/getTagProperties",
+          method: "POST",
+          data: JSON.stringify({
+            "userToken": _userToken,
+            "tags": _tags
+          })
+        }).done(function(data) {
+          console.log("getTagProperties", data);
+        });
+      },
+      "getLiveDataToken": function() {
+        if(_tags.length == 0) {
+          alert('Call "BrowseTags" first to build an array of tags used to get data.');
+          return;
+        }
+        
+        $.ajax({
+          url: _baseUrl + "/getLiveDataToken",
+          method: "POST",
+          data: JSON.stringify({
+            "userToken": _userToken,
+            "tags": _tags,
+            "mode": "AllValues",
+            "includeQuality": true
+          })
+        }).done(function(data) {
+          console.log("getLiveDataToken", data);
+          
+          _liveDataToken = data.liveDataToken;
+        });
+      },
+      "getLiveData": function(continuation) {
+        $.ajax({
+          url: _baseUrl + "/getLiveData",
+          method: "POST",
+          data: JSON.stringify({
+            "userToken": _userToken,
+            "liveDataToken": _liveDataToken,
+            "continuation": continuation || null
+          })
+        }).done(function(data) {
+          console.log("getLiveData", data);
+        });
+      },
+      "revokeLiveDataToken": function() {
+        $.ajax({
+          url: _baseUrl + "/revokeLiveDataToken",
+          method: "POST",
+          data: JSON.stringify({
+            "userToken": _userToken,
+            "liveDataToken": _liveDataToken
+          })
+        }).done(function(data) {
+          console.log("revokeLiveDataToken", data);
+          
+          _liveDataToken = null;
+        });
+      }
+    }];
+  </script>
   <script>
     $(function() {
-      // variables
-      var userToken = null;
-      var liveDataToken = null;
-      var tags = [];
-      var baseUrls = [
-        "http://localhost:55235/api/v1",
-        "https://localhost:55236/api/v1"
-      ];
-      var baseUrl = baseUrls[0];
-      
-      // api methods
-      var apiMethods = {
-        "getTimeZones": function() {
-          $.ajax({
-            url: baseUrl + "/getTimeZones",
-            method: "POST"
-          }).done(function(data) {
-            console.log("getTimeZones", data);
-          });
-        },
-        "getUserToken": function() {
-          $.ajax({
-            url: baseUrl + "/getUserToken",
-            method: "POST",
-            data: JSON.stringify({
-              "application": "Web API Test",
-              "timeZone": "Eastern Standard Time", //"Central Standard Time",
-              "username": "name", // ONLY SET WHEN using https:// protocol
-              "password": "secret" // ONLY SET WHEN using https:// protocol
-            })
-          }).done(function(data) {
-            console.log("getUserToken", data);
-            
-            // set user token
-            userToken = data.userToken;
-          });
-        },
-        "revokeUserToken": function() {
-          $.ajax({
-            url: baseUrl + "/revokeUserToken",
-            method: "POST",
-            data: JSON.stringify({
-              "userToken": userToken
-            })
-          }).done(function(data) {
-            console.log("revokeUserToken", data);
-            
-            userToken = null;
-          });
-        },
-        "browseNodes": function(path) {
-          $.ajax({
-            url: baseUrl + "/browseNodes",
-            method: "POST",
-            data: JSON.stringify({
-              "userToken": userToken,
-              "path": path || ""
-            })
-          }).done(function(data) {
-            console.log("browseNodes", data);
-            
-            // recursively browse into the first node of each request
-            var nodes = data.nodes;
-            var keys = Object.keys(nodes);
-            if(keys.length > 0) {
-              var node = nodes[keys[0]];
-              if(node.hasNodes)
-                apiMethods["browseNodes"](node.fullPath);
-            }
-          });
-        },
-        "browseTags": function(continuation) {
-          $.ajax({
-            url: baseUrl + "/browseTags",
-            method: "POST", 
-            data: JSON.stringify({
-              "userToken": userToken,
-              "deep": true,
-              "search": "{Diagnostics}"
-              //"path": "optional",
-              //"maxSize": 1000,
-              //"continuation": continuation || null
-            })
-          }).done(function(data) {
-            console.log("browseTags", data);
-            
-            // recursively browse more tags
-            //if(data.continuation != null)
-            //  apiMethods["browseTags"](data.continuation);
-            
-            // set tags
-            tags = data.tags;
-          });
-        },
-        "getAggregates": function() {
-          $.ajax({
-            url: baseUrl + "/getAggregates",
-            method: "POST",
-            data: JSON.stringify({
-              "userToken": userToken
-            })
-          }).done(function(data) {
-            console.log("getAggregates", data);
-          });
-        },
-        "getQualities": function(qualities) {
-          $.ajax({
-            url: baseUrl + "/getQualities",
-            method: "POST",
-            data: JSON.stringify({
-              "userToken": userToken,
-              "qualities": qualities != undefined ? qualities : [
-                192,
-                "193",
-                32768
-              ]
-            })
-          }).done(function(data) {
-            console.log("getQualities", data);
-          });
-        },
-        "getTagProperties": function() {
-          $.ajax({
-            url: baseUrl + "/getTagProperties",
-            method: "POST",
-            data: JSON.stringify({
-              "userToken": userToken,
-              "tags": tags
-            })
-          }).done(function(data) {
-            console.log("getTagProperties", data);
-          });
-        },
-        "getCurrentValues": function() {
-          if(tags.length == 0) {
-            alert('Call "BrowseTags" first to build an array of tags used to get data.');
-            return;
-          }
-          
-          $.ajax({
-            url: baseUrl + "/getTagData",
-            method: "POST",
-            data: JSON.stringify({
-              "userToken": userToken,
-              "tags": tags
-              // NOTICE: do not include any additional parameters when requesting current value
-            })
-          }).done(function(data) {
-            console.log("getCurrentValues", data);
-          });
-        },
-        "getRawData": function(continuation) {
-          if(tags.length == 0) {
-            alert('Call "BrowseTags" first to build an array of tags used to get data.');
-            return;
-          }
-          
-          // forward processed data
-          $.ajax({
-            url: baseUrl + "/getTagData",
-            method: "POST",
-            data: JSON.stringify({
-              "userToken": userToken,
-              "tags": tags,
-              "startTime": "Now - 24 Hours", //"2017-12-01T12:00:00.0000000",
-              "endTime": "Now", //"2017-12-14T12:00:00.0000000",
-              "maxSize": 10000,
-              "continuation": continuation || null
-              // NOTICE: do not include aggregate parameters when requesting raw data
-            })
-          }).done(function(data) {
-            console.log("getRawData", data);
-            
-            // call back into function if we have a continuation
-            if(data.continuation != null) {
-              console.log("CONTINUATION: getRawData", data.continuation);
-              apiMethods["getRawData"](data.continuation);
-            }
-            else
-              console.log("FINISHED: getRawData");
-          }).fail(function(error) {
-            console.log("error", error);
-          });
-        },
-        "getProcessedData": function(continuation) {
-          if(tags.length == 0) {
-            alert('Call "BrowseTags" first to build an array of tags used to get data.');
-            return;
-          }
-          
-          // forward processed data
-          $.ajax({
-            url: baseUrl + "/getTagData",
-            method: "POST",
-            data: JSON.stringify({
-              "userToken": userToken,
-              "tags": tags,
-              "startTime": "Now - 1 Day", //"2017-12-01T12:00:00.0000000",
-              "endTime": "Now", //"2017-12-14T12:00:00.0000000",
-              "aggregateName": "TimeAverage2",
-              "aggregateInterval": "1 Hour",
-              "maxSize": 10000,
-              "continuation": continuation || null
-            })
-          }).done(function(data) {
-            console.log("getProcessedData", data);
-            
-            // call back into function if we have a continuation
-            if(data.continuation != null) {
-              console.log("CONTINUATION: getProcessedData", data.continuation);
-              apiMethods["getProcessedData"](data.continuation);
-            }
-            else
-              console.log("FINISHED: getProcessedData");
-          }).fail(function(error) {
-            console.log("error", error);
-          });
-        },
-        "getLiveDataToken": function() {
-          if(tags.length == 0) {
-            alert('Call "BrowseTags" first to build an array of tags used to get data.');
-            return;
-          }
-          
-          $.ajax({
-            url: baseUrl + "/getLiveDataToken",
-            method: "POST",
-            data: JSON.stringify({
-              "userToken": userToken,
-              "tags": tags,
-              "mode": "AllValues",
-              "includeQuality": true
-            })
-          }).done(function(data) {
-            console.log("getLiveDataToken", data);
-            
-            liveDataToken = data.liveDataToken;
-          });
-        },
-        "getLiveData": function(continuation) {
-          $.ajax({
-            url: baseUrl + "/getLiveData",
-            method: "POST",
-            data: JSON.stringify({
-              "userToken": userToken,
-              "liveDataToken": liveDataToken,
-              "continuation": continuation || null
-            })
-          }).done(function(data) {
-            console.log("getLiveData", data);
-          });
-        },
-        "revokeLiveDataToken": function() {
-          $.ajax({
-            url: baseUrl + "/revokeLiveDataToken",
-            method: "POST",
-            data: JSON.stringify({
-              "userToken": userToken,
-              "liveDataToken": liveDataToken
-            })
-          }).done(function(data) {
-            console.log("revokeLiveDataToken", data);
-            
-            liveDataToken = null;
-          });
-        }
-      };
-      
       // add buttons
       var buttons = "";
-      for(var key in apiMethods)
-        buttons += '<button>' + key + '</button><br>';
-      $('body').append(buttons);
+      for(var key in _apiMethods[0])
+        buttons += '<button id="' + key + '" data-index="0">' + key + '</button><br>';
+      $('#script-actions #primary-methods .buttons').append(buttons);
+      
+      var buttons = "";
+      for(var key in _apiMethods[1])
+        buttons += '<button id="' + key + '" data-index="1">' + key + '</button><br>';
+      $('#script-actions #supplemental-methods .buttons').append(buttons);
       
       // add event listeners
       $('body').on('click', 'button', function(e) {
-        $button = $(this);
-        var key = $button.text();
-        var apiMethod = apiMethods[key];
-        apiMethod(); // execute api method
+        var $button = $(this);
+        var id = $button.attr("id");
+        var index = $button.data("index");
+        _apiMethods[index][id]();
       });
       
-      var highlight = [
-        "getTimeZones",
-        "getUserToken",
-        "browseTags",
-        "getCurrentValues",
-        "getRawData",
-        "getProcessedData"
-      ];
-      for(var i = 0; i < highlight.length; i++) {
-        $('button:contains("' + highlight[i] + '")').css({
-          'font-weight': 'bold',
-          'text-decoration': 'underline'
-        });
-      }
+      // add source to right side of page
+      $("#main-script-container").text($("#main-script").text());
     });
   </script>
 </head>
 <body>
-  <h1>Views API Demo</h1>
-  <p>Before using the API, the proper endpoints must be turned on to listen for requests.</p>
-  <ol>
-    <li>Open the "Canary Admin" program.</li>
-    <li>Click on the "Views" info box on the home screen.</li>
-    <li>Click on "Configuration" in the bottom tab control.</li>
-    <li>Click on "Endpoints" in the side tab control.</li>
-    <li>Turn on the (Web API) endpoints that you will use. Note the port numbers. These are the ports that will be listening for the Web API requests.</li>
-  </ol>
-  <p>Open the console window to view the results of each method call. View page source to see how the methods are called.</p>
-  <ol>
-    <li>Call "GetTimeZones" and keep the "timezone" that should be used when returning timestamps.</li>
-    <li>Call "GetUserToken" to get a "userToken" that is required in subsequent calls.</li>
-    <li>Call "BrowseTags" to load a tag array used to retrieve data in subsequent calls.</li>
-    <li>Call "GetCurrentValue" to get current values of the tag array.</li>
-    <li>Call "GetRawData" to get raw data of the tag array.</li>
-    <li>Call "GetProcessedData" to get processed data of the tag array.</li>
-    <li>Revoke the "userToken" when finished retrieving data.</li>
-  </ol>
+  <div id="screen-left">
+    <h1>Views API Demo</h1>
+    <p>Before using the API, the proper endpoints must be turned on to listen for requests.</p>
+    <ol>
+      <li>Open the "Canary Admin" program.</li>
+      <li>Click on the "Views" info box on the home screen.</li>
+      <li>Click on "Configuration" in the bottom tab control.</li>
+      <li>Click on "Endpoints" in the side tab control.</li>
+      <li>Turn on the (Web API) endpoints that you will use. Note the port numbers. These are the ports that will be listening for the Web API requests.</li>
+    </ol>
+    <p>Click on the buttons to execute method calls to an api on the local machine. Hit the F12 key to open the browser console window to view the results of each method call.</p>
+    <ol>
+      <li>Call "GetTimeZones" and keep the "timezone" that should be used when returning timestamps.</li>
+      <li>Call "GetUserToken" to get a "userToken" that is required in subsequent calls.</li>
+      <li>Call "BrowseTags" to load a tag array used to retrieve data in subsequent calls.</li>
+      <li>Call "GetCurrentValue" to get current values of the tag array.</li>
+      <li>Call "GetRawData" to get raw data of the tag array.</li>
+      <li>Call "GetProcessedData" to get processed data of the tag array.</li>
+      <li>Revoke the "userToken" when finished retrieving data.</li>
+    </ol>
+    <div id="script-actions">
+      <div id="primary-methods">
+        <h3>Primary</h3>
+        <div class="buttons"></div>
+      </div>
+      <div id="supplemental-methods">
+        <h3>Supplemental</h3>
+        <div class="buttons"></div>
+      </div>
+    </div>
+  </div>
+  <div id="screen-right">
+    <h1>Page Source</h1>
+    <p>This source uses the jQuery library.</p>
+    <div id="main-script-container"></div>
+  </div>
 </body>
 </html>
