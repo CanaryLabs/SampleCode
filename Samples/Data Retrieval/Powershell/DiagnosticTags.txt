@@ -1,0 +1,32 @@
+localhost.{Diagnostics}.AdminRequests/sec
+localhost.{Diagnostics}.Reading.HistoryMax-ms
+localhost.{Diagnostics}.Reading.HistoryRequests/sec
+localhost.{Diagnostics}.Reading.LiveMax-ms
+localhost.{Diagnostics}.Reading.LiveTVQs/sec
+localhost.{Diagnostics}.Reading.NumClients
+localhost.{Diagnostics}.Reading.TagHandles
+localhost.{Diagnostics}.Reading.TVQs/sec
+localhost.{Diagnostics}.Sys.CPU Usage Historian
+localhost.{Diagnostics}.Sys.CPU Usage Total
+localhost.{Diagnostics}.Sys.Historian Handle Count
+localhost.{Diagnostics}.Sys.Historian Thread Count
+localhost.{Diagnostics}.Sys.Historian Working Set (memory)
+localhost.{Diagnostics}.Sys.Memory Page
+localhost.{Diagnostics}.Sys.Memory Virtual
+localhost.{Diagnostics}.Views.APICallCount/min
+localhost.{Diagnostics}.Views.AxiomCallCount
+localhost.{Diagnostics}.Views.AxiomLiveCallCount
+localhost.{Diagnostics}.Views.AxiomLiveMax-ms
+localhost.{Diagnostics}.Views.AxiomLivePixelMax-ms
+localhost.{Diagnostics}.Views.AxiomTotalTVQS
+localhost.{Diagnostics}.Views.CPU Usage
+localhost.{Diagnostics}.Views.GetRawCount
+localhost.{Diagnostics}.Views.GetRawMax-ms
+localhost.{Diagnostics}.Views.TotalConnections/min
+localhost.{Diagnostics}.Views.TotalTVQs/min
+localhost.{Diagnostics}.Views.Working Set Memory
+localhost.{Diagnostics}.Writing.NumClients
+localhost.{Diagnostics}.Writing.Requests/sec
+localhost.{Diagnostics}.Writing.TagHandles
+localhost.{Diagnostics}.Writing.TVQ TimeExtensions/sec
+localhost.{Diagnostics}.Writing.TVQs/sec

@@ -1,4 +1,4 @@
-﻿# Canary Labs Web API Read Data Example
+﻿# Canary Labs Web API Export Data Example
 # Tested with Powershell 5.1 and Powershell Core v6.
 # See http://localhost:55235/help for documentation regarding Canary api requests/response
 # By default, this script reads aggregated diagnostic data (1 minute aggregate from the last day) from a local historian and outputs the results to c:\temp\canaryReadDemo.csv
@@ -165,10 +165,6 @@ $dataSetPrefix = "localhost.{Diagnostics}"
 # collection of tags that you want to read from the api. Note: only 1 tag is supported for raw data since timestamps will not be the same across tags (invalid export)
 $tagsToRead = @(
 "AdminRequests/sec",
-"IO.MapUsage",
-"IO.MemFilesFreed",
-"IO.NumMaps",
-"IO.NumOpenFiles",
 "Reading.HistoryMax-ms",
 "Reading.HistoryRequests/sec",
 "Reading.LiveMax-ms",
@@ -309,7 +305,14 @@ if ([System.IO.File]::Exists($csvFileName))
 $fullyQualifiedTagsToRead = New-Object System.Collections.ArrayList($tagsToRead.Count)
 foreach ($tag in $tagsToRead)
 {
-    $fullyQualifiedTagsToRead.Add($dataSetPrefix + "." + $tag) > $null
+    if ($dataSetPrefix.Length -gt 0)
+    {
+        $fullyQualifiedTagsToRead.Add($dataSetPrefix + "." + $tag) > $null
+    }
+    else
+    {
+        $fullyQualifiedTagsToRead.Add($tag) > $null
+    }
 }
 
 # get a user token for authenticating the requests
