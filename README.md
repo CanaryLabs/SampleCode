@@ -20,4 +20,4 @@ Here you can download code samples for writing custom integrations with the Cana
 
 ## Other Canary Labs help links
 Help Center (KnowledgeBase)
-[https://help.canarylabs.com/knowledge](https://help.canarylabs.com/knowledge)
+[https://help.canarylabs.com](https://help.canarylabs.com)
