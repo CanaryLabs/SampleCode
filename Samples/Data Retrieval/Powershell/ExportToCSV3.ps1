@@ -7,7 +7,6 @@
 # args
 # 0: url ex. http://localhost:55235
 # 1: path to read ex. <machineName>.{Diagnostics}
-# 2: search text ex. "pump flow" (will search tags that contain both 'pump' and 'flow')
 # 2: output file ex. c:\temp\canaryReadDemo.csv
 # 3: start time ex. now-1day
 # 4: end time ex. now
