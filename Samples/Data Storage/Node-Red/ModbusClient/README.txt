@@ -1,6 +1,6 @@
 Canary Labs Node-Red storage example
-- Tested with Node-Red v0.18.4
-- Depends upon node-red-contrib-modbus module (v3.4.0 tested)
+- Tested with Node-Red v0.20.3
+- Depends upon node-red-contrib-modbus module (v4.1.3 tested)
 - Reads coils, inputs, holding registers, and input registers from a Modbus device and logs to the Canary historian
 - Utilizes the Canary Sender Web API for storage
 - This flow does not support client buffering of data. If connection is lost with the Canary Sender API, data may be lost
