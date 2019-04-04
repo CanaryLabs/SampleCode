@@ -1,992 +1,822 @@
-[
-    {
-        "id": "f2e46c95.47c23",
-        "type": "tab",
-        "label": "Canary Store And Forward",
-        "disabled": false,
-        "info": "Reads registers from a modbus device and stores tag data in the Canary historian"
-    },
-    {
-        "id": "c588bb1b.a508c",
-        "type": "http request",
-        "z": "f2e46c95.47c23",
-        "name": "GetCanaryUserToken",
-        "method": "POST",
-        "ret": "obj",
-        "url": "http://localhost:55253/api/v1/getUserToken",
-        "tls": "",
-        "x": 720,
-        "y": 660,
-        "wires": [
-            [
-                "a6aa4503.3d3678",
-                "f2e7c43f.ba7d78"
-            ]
-        ]
-    },
-    {
-        "id": "83a762c6.16ca4",
-        "type": "catch",
-        "z": "f2e46c95.47c23",
-        "name": "",
-        "scope": null,
-        "x": 120,
-        "y": 1080,
-        "wires": [
-            [
-                "2cb57f40.2f0f4"
-            ]
-        ]
-    },
-    {
-        "id": "2cb57f40.2f0f4",
-        "type": "debug",
-        "z": "f2e46c95.47c23",
-        "name": "Debug Exceptions",
-        "active": true,
-        "tosidebar": true,
-        "console": false,
-        "tostatus": false,
-        "complete": "true",
-        "x": 318,
-        "y": 1080.25,
-        "wires": []
-    },
-    {
-        "id": "7f152f1.54fbbd",
-        "type": "debug",
-        "z": "f2e46c95.47c23",
-        "name": "",
-        "active": true,
-        "tosidebar": true,
-        "console": false,
-        "tostatus": false,
-        "complete": "payload",
-        "x": 410,
-        "y": 1240,
-        "wires": []
-    },
-    {
-        "id": "378e48f7.9a90e8",
-        "type": "inject",
-        "z": "f2e46c95.47c23",
-        "name": "global.canarySessionToken",
-        "topic": "",
-        "payload": "canarySessionToken",
-        "payloadType": "global",
-        "repeat": "",
-        "crontab": "",
-        "once": false,
-        "onceDelay": 0.1,
-        "x": 190,
-        "y": 1240,
-        "wires": [
-            [
-                "7f152f1.54fbbd"
-            ]
-        ]
-    },
-    {
-        "id": "a6aa4503.3d3678",
-        "type": "function",
-        "z": "f2e46c95.47c23",
-        "name": "Set Global UserToken",
-        "func": "global.set(\"canaryUserToken\", msg.payload.userToken);\nreturn msg;",
-        "outputs": 1,
-        "noerr": 0,
-        "x": 720,
-        "y": 700,
-        "wires": [
-            [
-                "a1b15e85.b6d7a"
-            ]
-        ]
-    },
-    {
-        "id": "f2c3da55.21334",
-        "type": "comment",
-        "z": "f2e46c95.47c23",
-        "name": "Retrieve global session token and print to debug",
-        "info": "",
-        "x": 240,
-        "y": 1200,
-        "wires": []
-    },
-    {
-        "id": "bf846e68.5acb3",
-        "type": "http request",
-        "z": "f2e46c95.47c23",
-        "name": "GetCanarySessionToken",
-        "method": "POST",
-        "ret": "obj",
-        "url": "http://localhost:55253/api/v1/getSessionToken",
-        "tls": "",
-        "x": 730,
-        "y": 780,
-        "wires": [
-            [
-                "2bbbf50a.6e2362"
-            ]
-        ]
-    },
-    {
-        "id": "a1b15e85.b6d7a",
-        "type": "template",
-        "z": "f2e46c95.47c23",
-        "name": "Format SessionToken JSON",
-        "field": "payload",
-        "fieldType": "msg",
-        "format": "handlebars",
-        "syntax": "mustache",
-        "template": "{\n    \"userToken\":\"{{global.canaryUserToken}}\",\n    \"historians\":[\n        \"Josh\"\n    ],\n    \"clientId\":\"Node-Red Client\",\n    \"settings\": {\n        \"autoCreateDatasets\": true\n    }\n}",
-        "output": "json",
-        "x": 740,
-        "y": 740,
-        "wires": [
-            [
-                "bf846e68.5acb3"
-            ]
-        ]
-    },
-    {
-        "id": "2bbbf50a.6e2362",
-        "type": "function",
-        "z": "f2e46c95.47c23",
-        "name": "Set Global SessionToken",
-        "func": "global.set(\"canarySessionToken\", msg.payload.sessionToken);\nreturn msg;",
-        "outputs": 1,
-        "noerr": 0,
-        "x": 730,
-        "y": 820,
-        "wires": [
-            [
-                "3a8e0750.47aa68",
-                "74519674.fb7498"
-            ]
-        ]
-    },
-    {
-        "id": "ca96bdf1.72c15",
-        "type": "debug",
-        "z": "f2e46c95.47c23",
-        "name": "",
-        "active": true,
-        "tosidebar": true,
-        "console": false,
-        "tostatus": false,
-        "complete": "payload",
-        "x": 410,
-        "y": 1160,
-        "wires": []
-    },
-    {
-        "id": "228249bb.5c9106",
-        "type": "inject",
-        "z": "f2e46c95.47c23",
-        "name": "",
-        "topic": "",
-        "payload": "canaryUserToken",
-        "payloadType": "global",
-        "repeat": "",
-        "crontab": "",
-        "once": false,
-        "onceDelay": 0.1,
-        "x": 180,
-        "y": 1160,
-        "wires": [
-            [
-                "ca96bdf1.72c15"
-            ]
-        ]
-    },
-    {
-        "id": "60048b2e.392794",
-        "type": "comment",
-        "z": "f2e46c95.47c23",
-        "name": "Retrieve global user token and print to debug",
-        "info": "",
-        "x": 230,
-        "y": 1120,
-        "wires": []
-    },
-    {
-        "id": "2071643c.9a83c4",
-        "type": "function",
-        "z": "f2e46c95.47c23",
-        "name": "Log Coils",
-        "func": "// takes an array of booleans from a modbus coil read and \n// builds the payload to pass to the canary logging flow\n\nvar date = new Date();\nvar canaryMsg = {};\ncanaryMsg.payload = {};\ncanaryMsg.payload.tvqs = {};\n\n// configure your tag list here. \n// tag name should be fully qualified with what should be stored in the\n// canary historian ex. <dataset>.<path>.<tagname>\n// this list needs to be <= the number of coils\n// being read from modbus (configured in the modbus function)\nvar tags = \n[\n    \"Node-Red.Coil1\", // this tag is array item 0\n    \"Node-Red.Coil2\", // this tag is array item 1\n    \"Node-Red.Coil3\", // this tag is array item 2\n    \"Node-Red.Coil4\", // ...\n    \"Node-Red.Coil5\",\n    \"Node-Red.Coil6\",\n    \"Node-Red.Coil7\",\n    \"Node-Red.Coil8\",\n    \"Node-Red.Coil9\",\n    \"Node-Red.Coil10\"\n];\n\nfor(var i=0; i<tags.length; i++)\n{\n    canaryMsg.payload.tvqs[tags[i]] = [[date.toISOString(), msg.values[i]]];\n}\n\nreturn canaryMsg;",
-        "outputs": 1,
-        "noerr": 0,
-        "x": 420,
-        "y": 80,
-        "wires": [
-            [
-                "dadf2e8f.23b0a"
-            ]
-        ],
-        "inputLabels": [
-            "msg"
-        ]
-    },
-    {
-        "id": "65e4ce06.d71ac",
-        "type": "modbus-read",
-        "z": "f2e46c95.47c23",
-        "name": "Read Coils",
-        "topic": "",
-        "showStatusActivities": false,
-        "showErrors": false,
-        "unitid": "1",
-        "dataType": "Coil",
-        "adr": "0",
-        "quantity": "10",
-        "rate": "1",
-        "rateUnit": "s",
-        "delayOnStart": true,
-        "startDelayTime": "5",
-        "server": "5b3128f6.9b5b7",
-        "useIOFile": false,
-        "ioFile": "",
-        "useIOForPayload": false,
-        "x": 140,
-        "y": 80,
-        "wires": [
-            [],
-            [
-                "2071643c.9a83c4"
-            ]
-        ]
-    },
-    {
-        "id": "64ec656b.b26a14",
-        "type": "modbus-read",
-        "z": "f2e46c95.47c23",
-        "name": "Read Inputs",
-        "topic": "",
-        "showStatusActivities": false,
-        "showErrors": false,
-        "unitid": "1",
-        "dataType": "Input",
-        "adr": "0",
-        "quantity": "10",
-        "rate": "1",
-        "rateUnit": "s",
-        "delayOnStart": true,
-        "startDelayTime": "5",
-        "server": "5b3128f6.9b5b7",
-        "useIOFile": false,
-        "ioFile": "",
-        "useIOForPayload": false,
-        "x": 150,
-        "y": 140,
-        "wires": [
-            [],
-            [
-                "66d02d5f.e56a64"
-            ]
-        ]
-    },
-    {
-        "id": "90d9951.bb83f68",
-        "type": "debug",
-        "z": "f2e46c95.47c23",
-        "name": "Good Store",
-        "active": false,
-        "tosidebar": true,
-        "console": false,
-        "tostatus": false,
-        "complete": "true",
-        "x": 1730,
-        "y": 560,
-        "wires": []
-    },
-    {
-        "id": "d847a142.b0fe68",
-        "type": "modbus-read",
-        "z": "f2e46c95.47c23",
-        "name": "Read Holding",
-        "topic": "",
-        "showStatusActivities": false,
-        "showErrors": false,
-        "unitid": "1",
-        "dataType": "HoldingRegister",
-        "adr": "0",
-        "quantity": "10",
-        "rate": "1",
-        "rateUnit": "s",
-        "delayOnStart": true,
-        "startDelayTime": "5",
-        "server": "5b3128f6.9b5b7",
-        "useIOFile": false,
-        "ioFile": "",
-        "useIOForPayload": false,
-        "x": 150,
-        "y": 200,
-        "wires": [
-            [],
-            [
-                "3f2a7b00.fd173c"
-            ]
-        ]
-    },
-    {
-        "id": "1715c912.c4608f",
-        "type": "modbus-read",
-        "z": "f2e46c95.47c23",
-        "name": "Read Input Registers",
-        "topic": "",
-        "showStatusActivities": false,
-        "showErrors": false,
-        "unitid": "1",
-        "dataType": "InputRegister",
-        "adr": "0",
-        "quantity": "10",
-        "rate": "1",
-        "rateUnit": "s",
-        "delayOnStart": true,
-        "startDelayTime": "5",
-        "server": "5b3128f6.9b5b7",
-        "useIOFile": false,
-        "ioFile": "",
-        "useIOForPayload": false,
-        "x": 180,
-        "y": 260,
-        "wires": [
-            [],
-            [
-                "a6e887b3.d7f58"
-            ]
-        ]
-    },
-    {
-        "id": "de7df116.87e45",
-        "type": "http request",
-        "z": "f2e46c95.47c23",
-        "name": "CanaryStoreData",
-        "method": "POST",
-        "ret": "obj",
-        "url": "http://localhost:55253/api/v1/storeData",
-        "tls": "",
-        "x": 1050,
-        "y": 560,
-        "wires": [
-            [
-                "406953ea.e3154c",
-                "bca03665.468bb8"
-            ]
-        ]
-    },
-    {
-        "id": "406953ea.e3154c",
-        "type": "switch",
-        "z": "f2e46c95.47c23",
-        "name": "",
-        "property": "payload.statusCode",
-        "propertyType": "msg",
-        "rules": [
-            {
-                "t": "eq",
-                "v": "Good",
-                "vt": "str"
-            },
-            {
-                "t": "else"
-            }
-        ],
-        "checkall": "true",
-        "repair": false,
-        "outputs": 2,
-        "x": 1230,
-        "y": 600,
-        "wires": [
-            [
-                "dc37646f.7feca"
-            ],
-            [
-                "d8bedce5.bea528"
-            ]
-        ]
-    },
-    {
-        "id": "d8bedce5.bea528",
-        "type": "debug",
-        "z": "f2e46c95.47c23",
-        "name": "Store Error",
-        "active": true,
-        "tosidebar": true,
-        "console": false,
-        "tostatus": false,
-        "complete": "true",
-        "x": 1370,
-        "y": 640,
-        "wires": []
-    },
-    {
-        "id": "66d02d5f.e56a64",
-        "type": "function",
-        "z": "f2e46c95.47c23",
-        "name": "Log Inputs",
-        "func": "// takes an array of booleans from a modbus input read and \n// builds the payload to pass to the canary logging flow\n\nvar date = new Date();\nvar canaryMsg = {};\ncanaryMsg.payload = {};\ncanaryMsg.payload.tvqs = {};\n\n// configure your tag list here. \n// tag name should be fully qualified with what should be stored in the\n// canary historian ex. <dataset>.<path>.<tagname>\n// this list needs to be <= the number of coils configured to be\n// read from modbus (configured in the modbus function)\nvar tags = \n[\n    \"Node-Red.Input1\", // this tag is array item 0\n    \"Node-Red.Input2\", // this tag is array item 1\n    \"Node-Red.Input3\", // this tag is array item 2\n    \"Node-Red.Input4\", // ...\n    \"Node-Red.Input5\",\n    \"Node-Red.Input6\",\n    \"Node-Red.Input7\",\n    \"Node-Red.Input8\",\n    \"Node-Red.Input9\",\n    \"Node-Red.Input10\"\n];\n\nfor(var i=0; i<tags.length; i++)\n{\n    canaryMsg.payload.tvqs[tags[i]] = [[date.toISOString(), msg.values[i]]];\n}\n\nreturn canaryMsg;",
-        "outputs": 1,
-        "noerr": 0,
-        "x": 410,
-        "y": 140,
-        "wires": [
-            [
-                "dadf2e8f.23b0a"
-            ]
-        ]
-    },
-    {
-        "id": "3f2a7b00.fd173c",
-        "type": "function",
-        "z": "f2e46c95.47c23",
-        "name": "Log Holding Registers",
-        "func": "// takes an array of booleans from a modbus holding register read and \n// builds the payload to pass to the canary logging flow\n\nvar date = new Date();\nvar canaryMsg = {};\ncanaryMsg.payload = {};\ncanaryMsg.payload.tvqs = {};\n\n// configure your tag list here. \n// tag name should be fully qualified with what should be stored in the\n// canary historian ex. <dataset>.<path>.<tagname>\n// this list needs to be <= the number of input registers configured to be\n// be read from modbus (configured in the modbus function)\nvar tags = \n[\n    \"Node-Red.HoldingRegister1\", // this tag is array item 0\n    \"Node-Red.HoldingRegister2\", // this tag is array item 1\n    \"Node-Red.HoldingRegister3\", // this tag is array item 2\n    \"Node-Red.HoldingRegister4\", // ...\n    \"Node-Red.HoldingRegister5\",\n    \"Node-Red.HoldingRegister6\",\n    \"Node-Red.HoldingRegister7\",\n    \"Node-Red.HoldingRegister8\",\n    \"Node-Red.HoldingRegister9\",\n    \"Node-Red.HoldingRegister10\"\n];\n\nfor(var i=0; i<tags.length; i++)\n{\n    canaryMsg.payload.tvqs[tags[i]] = [[date.toISOString(), msg.values[i]]];\n}\n\nreturn canaryMsg;",
-        "outputs": 1,
-        "noerr": 0,
-        "x": 380,
-        "y": 200,
-        "wires": [
-            [
-                "dadf2e8f.23b0a"
-            ]
-        ]
-    },
-    {
-        "id": "a6e887b3.d7f58",
-        "type": "function",
-        "z": "f2e46c95.47c23",
-        "name": "Log Input Registers",
-        "func": "// takes an array of booleans from a modbus coil read and \n// builds the payload to pass to the canary logging flow\n\nvar date = new Date();\nvar canaryMsg = {};\ncanaryMsg.payload = {};\ncanaryMsg.payload.tvqs = {};\n\n// configure your tag list here. \n// tag name should be fully qualified with what should be stored in the\n// canary historian ex. <dataset>.<path>.<tagname>\n// this list needs to be <= the number of input registers configured to be\n// read from modbus (configured in the modbus function)\nvar tags = \n[\n    \"Node-Red.InputRegister1\", // this tag is array item 0\n    \"Node-Red.InputRegister2\", // this tag is array item 1\n    \"Node-Red.InputRegister3\", // this tag is array item 2\n    \"Node-Red.InputRegister4\", // ...\n    \"Node-Red.InputRegister5\",\n    \"Node-Red.InputRegister6\",\n    \"Node-Red.InputRegister7\",\n    \"Node-Red.InputRegister8\",\n    \"Node-Red.InputRegister9\",\n    \"Node-Red.InputRegister10\"\n];\n\nfor(var i=0; i<tags.length; i++)\n{\n    canaryMsg.payload.tvqs[tags[i]] = [[date.toISOString(), msg.values[i]]];\n}\n\nreturn canaryMsg;",
-        "outputs": 1,
-        "noerr": 0,
-        "x": 390,
-        "y": 260,
-        "wires": [
-            [
-                "dadf2e8f.23b0a"
-            ]
-        ]
-    },
-    {
-        "id": "3a8e0750.47aa68",
-        "type": "debug",
-        "z": "f2e46c95.47c23",
-        "name": "Session Token",
-        "active": false,
-        "tosidebar": true,
-        "console": false,
-        "tostatus": false,
-        "complete": "payload",
-        "x": 980,
-        "y": 820,
-        "wires": []
-    },
-    {
-        "id": "45d3817f.e964f",
-        "type": "template",
-        "z": "f2e46c95.47c23",
-        "name": "Format UserToken JSON",
-        "field": "payload",
-        "fieldType": "msg",
-        "format": "handlebars",
-        "syntax": "mustache",
-        "template": "{\n    \"username\":\"\",\n    \"password\":\"\"\n}",
-        "output": "json",
-        "x": 730,
-        "y": 620,
-        "wires": [
-            [
-                "c588bb1b.a508c"
-            ]
-        ]
-    },
-    {
-        "id": "f2e7c43f.ba7d78",
-        "type": "debug",
-        "z": "f2e46c95.47c23",
-        "name": "UserToken",
-        "active": false,
-        "tosidebar": true,
-        "console": false,
-        "tostatus": false,
-        "complete": "payload",
-        "x": 970,
-        "y": 660,
-        "wires": []
-    },
-    {
-        "id": "ef53d1cb.4ecaf8",
-        "type": "comment",
-        "z": "f2e46c95.47c23",
-        "name": "Debugging",
-        "info": "",
-        "x": 120,
-        "y": 1040,
-        "wires": []
-    },
-    {
-        "id": "ddfb20ff.fd044",
-        "type": "comment",
-        "z": "f2e46c95.47c23",
-        "name": "This section reads data from modbus and builds the JSON payloads to send to the Canary API",
-        "info": "",
-        "x": 380,
-        "y": 40,
-        "wires": []
-    },
-    {
-        "id": "51d45aba.3e59fc",
-        "type": "comment",
-        "z": "f2e46c95.47c23",
-        "name": "This section reads the buffer and calls the Canary sender API to store the buffered data",
-        "info": "",
-        "x": 360,
-        "y": 360,
-        "wires": []
-    },
-    {
-        "id": "e11a1d53.89d408",
-        "type": "sqlite",
-        "z": "f2e46c95.47c23",
-        "mydb": "aa18b23f.715f5",
-        "sqlquery": "prepared",
-        "sql": "INSERT INTO buffer (`cmd`) VALUES ($cmd);",
-        "name": "Store to buffer",
-        "x": 640,
-        "y": 220,
-        "wires": [
-            [
-                "f9c97629.75054"
-            ]
-        ]
-    },
-    {
-        "id": "a7917531.5de028",
-        "type": "function",
-        "z": "f2e46c95.47c23",
-        "name": "Format SQL",
-        "func": "var sqlMsg = {};\nsqlMsg.payload = {};\nsqlMsg.params = {\n    $cmd:msg.payload\n};\n\nreturn sqlMsg;",
-        "outputs": 1,
-        "noerr": 0,
-        "x": 630,
-        "y": 180,
-        "wires": [
-            [
-                "e11a1d53.89d408"
-            ]
-        ]
-    },
-    {
-        "id": "f9c97629.75054",
-        "type": "debug",
-        "z": "f2e46c95.47c23",
-        "name": "",
-        "active": false,
-        "tosidebar": true,
-        "console": false,
-        "tostatus": false,
-        "complete": "true",
-        "x": 870,
-        "y": 220,
-        "wires": []
-    },
-    {
-        "id": "dadf2e8f.23b0a",
-        "type": "json",
-        "z": "f2e46c95.47c23",
-        "name": "ConvertToJson",
-        "property": "payload",
-        "action": "str",
-        "pretty": false,
-        "x": 640,
-        "y": 140,
-        "wires": [
-            [
-                "a7917531.5de028"
-            ]
-        ]
-    },
-    {
-        "id": "931897e7.88784",
-        "type": "sqlite",
-        "z": "f2e46c95.47c23",
-        "mydb": "aa18b23f.715f5",
-        "sqlquery": "fixed",
-        "sql": "SELECT * FROM buffer WHERE sent = 0 ORDER BY tstamp LIMIT 100;",
-        "name": "Read buffer",
-        "x": 1030,
-        "y": 400,
-        "wires": [
-            [
-                "d8bb7de1.665da"
-            ]
-        ]
-    },
-    {
-        "id": "bc495289.a9695",
-        "type": "inject",
-        "z": "f2e46c95.47c23",
-        "name": "1s interval",
-        "topic": "",
-        "payload": "",
-        "payloadType": "date",
-        "repeat": "1",
-        "crontab": "",
-        "once": true,
-        "onceDelay": "1",
-        "x": 150,
-        "y": 400,
-        "wires": [
-            [
-                "affa85e2.33bef8"
-            ]
-        ]
-    },
-    {
-        "id": "bca03665.468bb8",
-        "type": "debug",
-        "z": "f2e46c95.47c23",
-        "name": "",
-        "active": false,
-        "tosidebar": true,
-        "console": false,
-        "tostatus": false,
-        "complete": "true",
-        "x": 1230,
-        "y": 520,
-        "wires": []
-    },
-    {
-        "id": "d8bb7de1.665da",
-        "type": "splitter",
-        "z": "f2e46c95.47c23",
-        "name": "Foreach DB record",
-        "property": "payload",
-        "x": 1050,
-        "y": 440,
-        "wires": [
-            [
-                "76893d8f.4103dc"
-            ]
-        ]
-    },
-    {
-        "id": "72ca0144.6c0888",
-        "type": "sqlite",
-        "z": "f2e46c95.47c23",
-        "mydb": "aa18b23f.715f5",
-        "sqlquery": "prepared",
-        "sql": "UPDATE buffer SET sent = 1 WHERE pk=$pk",
-        "name": "Update Sent Status",
-        "x": 1550,
-        "y": 560,
-        "wires": [
-            [
-                "90d9951.bb83f68"
-            ]
-        ]
-    },
-    {
-        "id": "dc37646f.7feca",
-        "type": "function",
-        "z": "f2e46c95.47c23",
-        "name": "Format SQL",
-        "func": "var sqlMsg = {};\nsqlMsg.payload = {};\nsqlMsg.params = {\n    $pk:msg.pk\n};\n\nreturn sqlMsg;",
-        "outputs": 1,
-        "noerr": 0,
-        "x": 1370,
-        "y": 560,
-        "wires": [
-            [
-                "72ca0144.6c0888"
-            ]
-        ]
-    },
-    {
-        "id": "76893d8f.4103dc",
-        "type": "json",
-        "z": "f2e46c95.47c23",
-        "name": "ConvertToObject",
-        "property": "payload.cmd",
-        "action": "obj",
-        "pretty": false,
-        "x": 1050,
-        "y": 480,
-        "wires": [
-            [
-                "2866297e.eead8e"
-            ]
-        ],
-        "outputLabels": [
-            "msg.payload.CmdText"
-        ]
-    },
-    {
-        "id": "2866297e.eead8e",
-        "type": "function",
-        "z": "f2e46c95.47c23",
-        "name": "Get Payload",
-        "func": "var storeMsg = {};\nstoreMsg.payload = msg.payload.cmd;\nstoreMsg.payload.userToken = global.get(\"canaryUserToken\");\nstoreMsg.payload.sessionToken = global.get(\"canarySessionToken\");\nstoreMsg.pk = msg.payload.pk;\nreturn storeMsg;",
-        "outputs": 1,
-        "noerr": 0,
-        "x": 1030,
-        "y": 520,
-        "wires": [
-            [
-                "de7df116.87e45"
-            ]
-        ]
-    },
-    {
-        "id": "4877f11b.331e48",
-        "type": "inject",
-        "z": "f2e46c95.47c23",
-        "name": "10s Interval",
-        "topic": "",
-        "payload": "",
-        "payloadType": "date",
-        "repeat": "10",
-        "crontab": "",
-        "once": true,
-        "onceDelay": "1",
-        "x": 150,
-        "y": 920,
-        "wires": [
-            [
-                "4cd35fd7.3983"
-            ]
-        ]
-    },
-    {
-        "id": "4cd35fd7.3983",
-        "type": "sqlite",
-        "z": "f2e46c95.47c23",
-        "mydb": "aa18b23f.715f5",
-        "sqlquery": "fixed",
-        "sql": "DELETE FROM buffer WHERE sent = 1;",
-        "name": "Purge Sent Records",
-        "x": 380,
-        "y": 920,
-        "wires": [
-            []
-        ]
-    },
-    {
-        "id": "f9f6eefd.b444c",
-        "type": "http request",
-        "z": "f2e46c95.47c23",
-        "name": "TestTokens",
-        "method": "POST",
-        "ret": "obj",
-        "url": "http://localhost:55253/api/v1/getErrors",
-        "tls": "",
-        "x": 390,
-        "y": 400,
-        "wires": [
-            [
-                "cb3fd448.5d1ce8"
-            ]
-        ]
-    },
-    {
-        "id": "cb3fd448.5d1ce8",
-        "type": "switch",
-        "z": "f2e46c95.47c23",
-        "name": "",
-        "property": "payload.statusCode",
-        "propertyType": "msg",
-        "rules": [
-            {
-                "t": "eq",
-                "v": "Good",
-                "vt": "str"
-            },
-            {
-                "t": "else"
-            }
-        ],
-        "checkall": "true",
-        "repair": false,
-        "outputs": 2,
-        "x": 530,
-        "y": 400,
-        "wires": [
-            [
-                "931897e7.88784"
-            ],
-            [
-                "f4bb2960.652c08"
-            ]
-        ]
-    },
-    {
-        "id": "ced65624.3f8048",
-        "type": "http request",
-        "z": "f2e46c95.47c23",
-        "name": "RevokeSessionToken",
-        "method": "POST",
-        "ret": "obj",
-        "url": "http://localhost:55253/api/v1/revokeSessionToken",
-        "tls": "",
-        "x": 720,
-        "y": 500,
-        "wires": [
-            [
-                "e59235dc.85a388"
-            ]
-        ]
-    },
-    {
-        "id": "f4bb2960.652c08",
-        "type": "template",
-        "z": "f2e46c95.47c23",
-        "name": "RevokeSessionToken JSON",
-        "field": "payload",
-        "fieldType": "msg",
-        "format": "handlebars",
-        "syntax": "mustache",
-        "template": "{\n    \"userToken\": \"{{global.canaryUserToken}}\",\n    \"sessionToken\": \"{{global.canarySessionToken}}\"\n}",
-        "output": "json",
-        "x": 740,
-        "y": 460,
-        "wires": [
-            [
-                "ced65624.3f8048"
-            ]
-        ]
-    },
-    {
-        "id": "a75692f8.30b3e",
-        "type": "http request",
-        "z": "f2e46c95.47c23",
-        "name": "RevokeUserToken",
-        "method": "POST",
-        "ret": "obj",
-        "url": "http://localhost:55253/api/v1/revokeUserToken",
-        "tls": "",
-        "x": 710,
-        "y": 580,
-        "wires": [
-            [
-                "45d3817f.e964f"
-            ]
-        ]
-    },
-    {
-        "id": "e59235dc.85a388",
-        "type": "template",
-        "z": "f2e46c95.47c23",
-        "name": "RevokeUserToken JSON",
-        "field": "payload",
-        "fieldType": "msg",
-        "format": "handlebars",
-        "syntax": "mustache",
-        "template": "{\n    \"userToken\":\"{{global.canaryUserToken}}\"\n}",
-        "output": "json",
-        "x": 730,
-        "y": 540,
-        "wires": [
-            [
-                "a75692f8.30b3e"
-            ]
-        ]
-    },
-    {
-        "id": "92619288.bebd3",
-        "type": "debug",
-        "z": "f2e46c95.47c23",
-        "name": "",
-        "active": false,
-        "tosidebar": true,
-        "console": false,
-        "tostatus": false,
-        "complete": "true",
-        "x": 470,
-        "y": 560,
-        "wires": []
-    },
-    {
-        "id": "affa85e2.33bef8",
-        "type": "template",
-        "z": "f2e46c95.47c23",
-        "name": "TestTokens JSON",
-        "field": "payload",
-        "fieldType": "msg",
-        "format": "handlebars",
-        "syntax": "mustache",
-        "template": "{\n    \"userToken\":\"{{global.canaryUserToken}}\",\n    \"sessionToken\":\"{{global.canarySessionToken}}\"\n}",
-        "output": "json",
-        "x": 290,
-        "y": 520,
-        "wires": [
-            [
-                "92619288.bebd3",
-                "f9f6eefd.b444c"
-            ]
-        ]
-    },
-    {
-        "id": "74519674.fb7498",
-        "type": "delay",
-        "z": "f2e46c95.47c23",
-        "name": "",
-        "pauseType": "delay",
-        "timeout": "5",
-        "timeoutUnits": "seconds",
-        "rate": "1",
-        "nbRateUnits": "1",
-        "rateUnits": "second",
-        "randomFirst": "1",
-        "randomLast": "5",
-        "randomUnits": "seconds",
-        "drop": false,
-        "x": 380,
-        "y": 780,
-        "wires": [
-            [
-                "affa85e2.33bef8"
-            ]
-        ]
-    },
-    {
-        "id": "db5e2e94.32d848",
-        "type": "comment",
-        "z": "f2e46c95.47c23",
-        "name": "Purge records from the buffer that were sent",
-        "info": "",
-        "x": 230,
-        "y": 880,
-        "wires": []
-    },
-    {
-        "id": "5b3128f6.9b5b7",
-        "type": "modbus-client",
-        "z": "",
-        "name": "Local Simulator",
-        "clienttype": "tcp",
-        "bufferCommands": true,
-        "stateLogEnabled": false,
-        "tcpHost": "127.0.0.1",
-        "tcpPort": "502",
-        "tcpType": "DEFAULT",
-        "serialPort": "/dev/ttyUSB",
-        "serialType": "RTU-BUFFERD",
-        "serialBaudrate": "9600",
-        "serialDatabits": "8",
-        "serialStopbits": "1",
-        "serialParity": "none",
-        "serialConnectionDelay": "100",
-        "unit_id": "1",
-        "commandDelay": "1",
-        "clientTimeout": "1000",
-        "reconnectTimeout": "2000"
-    },
-    {
-        "id": "aa18b23f.715f5",
-        "type": "sqlitedb",
-        "z": "",
-        "db": "c:\\users\\josh\\nodered\\buffer.sqlite"
-    }
-]
+[{
+	"id": "36bffe6a.1eda32",
+	"type": "tab",
+	"label": "Canary Store And Forward",
+	"disabled": false,
+	"info": "Reads registers from a modbus device and stores tag data in the Canary historian"
+},
+{
+	"id": "223b95e5.f7a8da",
+	"type": "http request",
+	"z": "36bffe6a.1eda32",
+	"name": "GetCanaryUserToken",
+	"method": "POST",
+	"ret": "obj",
+	"paytoqs": false,
+	"url": "http://localhost:55253/api/v1/getUserToken",
+	"tls": "",
+	"proxy": "",
+	"x": 160,
+	"y": 700,
+	"wires": [["79c02d1c.2e3214",
+	"1862de8a.ea7c41"]]
+},
+{
+	"id": "d2faecff.3dc88",
+	"type": "catch",
+	"z": "36bffe6a.1eda32",
+	"name": "",
+	"scope": null,
+	"x": 120,
+	"y": 1178,
+	"wires": [["893df492.6bac28"]]
+},
+{
+	"id": "893df492.6bac28",
+	"type": "debug",
+	"z": "36bffe6a.1eda32",
+	"name": "Debug Exceptions",
+	"active": true,
+	"tosidebar": true,
+	"console": false,
+	"tostatus": false,
+	"complete": "true",
+	"x": 318,
+	"y": 1178.25,
+	"wires": []
+},
+{
+	"id": "e65fc99d.1f6ff8",
+	"type": "debug",
+	"z": "36bffe6a.1eda32",
+	"name": "",
+	"active": true,
+	"tosidebar": true,
+	"console": false,
+	"tostatus": false,
+	"complete": "payload",
+	"x": 410,
+	"y": 1338,
+	"wires": []
+},
+{
+	"id": "d4197334.09ace",
+	"type": "inject",
+	"z": "36bffe6a.1eda32",
+	"name": "global.canarySessionToken",
+	"topic": "",
+	"payload": "canarySessionToken",
+	"payloadType": "global",
+	"repeat": "",
+	"crontab": "",
+	"once": false,
+	"onceDelay": 0.1,
+	"x": 190,
+	"y": 1338,
+	"wires": [["e65fc99d.1f6ff8"]]
+},
+{
+	"id": "79c02d1c.2e3214",
+	"type": "function",
+	"z": "36bffe6a.1eda32",
+	"name": "Set Global UserToken",
+	"func": "global.set(\"canaryUserToken\", msg.payload.userToken);\nreturn msg;",
+	"outputs": 1,
+	"noerr": 0,
+	"x": 160,
+	"y": 740,
+	"wires": [["97002030.e79af"]]
+},
+{
+	"id": "1c3cd0f7.e32bff",
+	"type": "comment",
+	"z": "36bffe6a.1eda32",
+	"name": "Retrieve global session token and print to debug",
+	"info": "",
+	"x": 240,
+	"y": 1298,
+	"wires": []
+},
+{
+	"id": "9799e7f5.056f38",
+	"type": "http request",
+	"z": "36bffe6a.1eda32",
+	"name": "GetCanarySessionToken",
+	"method": "POST",
+	"ret": "obj",
+	"paytoqs": false,
+	"url": "http://localhost:55253/api/v1/getSessionToken",
+	"tls": "",
+	"proxy": "",
+	"x": 170,
+	"y": 820,
+	"wires": [["1f1314da.2156ab"]]
+},
+{
+	"id": "97002030.e79af",
+	"type": "template",
+	"z": "36bffe6a.1eda32",
+	"name": "Format SessionToken JSON",
+	"field": "payload",
+	"fieldType": "msg",
+	"format": "handlebars",
+	"syntax": "mustache",
+	"template": "{\n    \"userToken\":\"{{global.canaryUserToken}}\",\n    \"historians\":[\n        \"Josh\"\n    ],\n    \"clientId\":\"Node-Red Client\",\n    \"settings\": {\n        \"autoCreateDatasets\": true\n    }\n}",
+	"output": "json",
+	"x": 180,
+	"y": 780,
+	"wires": [["9799e7f5.056f38"]]
+},
+{
+	"id": "1f1314da.2156ab",
+	"type": "function",
+	"z": "36bffe6a.1eda32",
+	"name": "Set Global SessionToken",
+	"func": "global.set(\"canarySessionToken\", msg.payload.sessionToken);\nreturn msg;",
+	"outputs": 1,
+	"noerr": 0,
+	"x": 170,
+	"y": 860,
+	"wires": [["e60b3f18.60f22",
+	"6f2f1b84.7e0794"]]
+},
+{
+	"id": "2b83ec3a.76cda4",
+	"type": "debug",
+	"z": "36bffe6a.1eda32",
+	"name": "",
+	"active": true,
+	"tosidebar": true,
+	"console": false,
+	"tostatus": false,
+	"complete": "payload",
+	"x": 410,
+	"y": 1258,
+	"wires": []
+},
+{
+	"id": "e21a0998.d0c698",
+	"type": "inject",
+	"z": "36bffe6a.1eda32",
+	"name": "",
+	"topic": "",
+	"payload": "canaryUserToken",
+	"payloadType": "global",
+	"repeat": "",
+	"crontab": "",
+	"once": false,
+	"onceDelay": 0.1,
+	"x": 180,
+	"y": 1258,
+	"wires": [["2b83ec3a.76cda4"]]
+},
+{
+	"id": "885cd0de.d4ee7",
+	"type": "comment",
+	"z": "36bffe6a.1eda32",
+	"name": "Retrieve global user token and print to debug",
+	"info": "",
+	"x": 230,
+	"y": 1218,
+	"wires": []
+},
+{
+	"id": "102c5f12.3ca2c1",
+	"type": "function",
+	"z": "36bffe6a.1eda32",
+	"name": "Log Coils",
+	"func": "// takes an array of booleans from a modbus coil read and \n// builds the payload to pass to the canary logging flow\n\nvar date = new Date();\nvar canaryMsg = {};\ncanaryMsg.payload = {};\ncanaryMsg.payload.tvqs = {};\n\n// configure your tag list here. \n// tag name should be fully qualified with what should be stored in the\n// canary historian ex. <dataset>.<path>.<tagname>\n// this list needs to be <= the number of coils\n// being read from modbus (configured in the modbus function)\nvar tags = \n[\n    \"Node-Red.Coil1\", // this tag is array item 0\n    \"Node-Red.Coil2\", // this tag is array item 1\n    \"Node-Red.Coil3\", // this tag is array item 2\n    \"Node-Red.Coil4\", // ...\n    \"Node-Red.Coil5\",\n    \"Node-Red.Coil6\",\n    \"Node-Red.Coil7\",\n    \"Node-Red.Coil8\",\n    \"Node-Red.Coil9\",\n    \"Node-Red.Coil10\"\n];\n\nfor(var i=0; i<tags.length; i++)\n{\n    canaryMsg.payload.tvqs[tags[i]] = [[date.toISOString(), msg.values[i]]];\n}\n\nreturn canaryMsg;",
+	"outputs": 1,
+	"noerr": 0,
+	"x": 420,
+	"y": 80,
+	"wires": [["762e2f29.4c238"]],
+	"inputLabels": ["msg"]
+},
+{
+	"id": "4b891470.9693ac",
+	"type": "modbus-read",
+	"z": "36bffe6a.1eda32",
+	"name": "Read Coils",
+	"topic": "",
+	"showStatusActivities": false,
+	"logIOActivities": false,
+	"showErrors": false,
+	"unitid": "1",
+	"dataType": "Coil",
+	"adr": "0",
+	"quantity": "10",
+	"rate": "1",
+	"rateUnit": "s",
+	"delayOnStart": true,
+	"startDelayTime": "5",
+	"server": "9533b6bf.17a808",
+	"useIOFile": false,
+	"ioFile": "",
+	"useIOForPayload": false,
+	"x": 140,
+	"y": 80,
+	"wires": [[],
+	["102c5f12.3ca2c1"]]
+},
+{
+	"id": "d7d87f1b.fc94b",
+	"type": "modbus-read",
+	"z": "36bffe6a.1eda32",
+	"name": "Read Inputs",
+	"topic": "",
+	"showStatusActivities": false,
+	"logIOActivities": false,
+	"showErrors": false,
+	"unitid": "1",
+	"dataType": "Input",
+	"adr": "0",
+	"quantity": "10",
+	"rate": "1",
+	"rateUnit": "s",
+	"delayOnStart": true,
+	"startDelayTime": "5",
+	"server": "9533b6bf.17a808",
+	"useIOFile": false,
+	"ioFile": "",
+	"useIOForPayload": false,
+	"x": 150,
+	"y": 140,
+	"wires": [[],
+	["a8c72c38.f233"]]
+},
+{
+	"id": "d75504a9.9fe6b8",
+	"type": "debug",
+	"z": "36bffe6a.1eda32",
+	"name": "Good Store",
+	"active": false,
+	"tosidebar": true,
+	"console": false,
+	"tostatus": false,
+	"complete": "true",
+	"targetType": "full",
+	"x": 1110,
+	"y": 680,
+	"wires": []
+},
+{
+	"id": "431c3896.ca93f8",
+	"type": "modbus-read",
+	"z": "36bffe6a.1eda32",
+	"name": "Read Holding",
+	"topic": "",
+	"showStatusActivities": false,
+	"showErrors": false,
+	"unitid": "1",
+	"dataType": "HoldingRegister",
+	"adr": "0",
+	"quantity": "10",
+	"rate": "1",
+	"rateUnit": "s",
+	"delayOnStart": true,
+	"startDelayTime": "5",
+	"server": "9533b6bf.17a808",
+	"useIOFile": false,
+	"ioFile": "",
+	"useIOForPayload": false,
+	"x": 150,
+	"y": 200,
+	"wires": [[],
+	["a2cf267e.f3b568"]]
+},
+{
+	"id": "ba713069.61169",
+	"type": "modbus-read",
+	"z": "36bffe6a.1eda32",
+	"name": "Read Input Registers",
+	"topic": "",
+	"showStatusActivities": false,
+	"showErrors": false,
+	"unitid": "1",
+	"dataType": "InputRegister",
+	"adr": "0",
+	"quantity": "10",
+	"rate": "1",
+	"rateUnit": "s",
+	"delayOnStart": true,
+	"startDelayTime": "5",
+	"server": "9533b6bf.17a808",
+	"useIOFile": false,
+	"ioFile": "",
+	"useIOForPayload": false,
+	"x": 180,
+	"y": 260,
+	"wires": [[],
+	["1965f5c1.6c0c4a"]]
+},
+{
+	"id": "759e5601.a10878",
+	"type": "http request",
+	"z": "36bffe6a.1eda32",
+	"name": "CanaryStoreData",
+	"method": "POST",
+	"ret": "obj",
+	"paytoqs": false,
+	"url": "http://localhost:55253/api/v1/storeData",
+	"tls": "",
+	"proxy": "",
+	"x": 730,
+	"y": 600,
+	"wires": [["63f6ce93.a02ae"]]
+},
+{
+	"id": "63f6ce93.a02ae",
+	"type": "switch",
+	"z": "36bffe6a.1eda32",
+	"name": "",
+	"property": "payload.statusCode",
+	"propertyType": "msg",
+	"rules": [{
+		"t": "eq",
+		"v": "Good",
+		"vt": "str"
+	},
+	{
+		"t": "else"
+	}],
+	"checkall": "true",
+	"repair": false,
+	"outputs": 2,
+	"x": 690,
+	"y": 640,
+	"wires": [["6aa5af6b.4b883"],
+	["36afa58a.a6274a",
+	"695e10ba.60bf4"]]
+},
+{
+	"id": "36afa58a.a6274a",
+	"type": "debug",
+	"z": "36bffe6a.1eda32",
+	"name": "Store Error",
+	"active": false,
+	"tosidebar": true,
+	"console": false,
+	"tostatus": false,
+	"complete": "true",
+	"x": 1110,
+	"y": 640,
+	"wires": []
+},
+{
+	"id": "a8c72c38.f233",
+	"type": "function",
+	"z": "36bffe6a.1eda32",
+	"name": "Log Inputs",
+	"func": "// takes an array of booleans from a modbus input read and \n// builds the payload to pass to the canary logging flow\n\nvar date = new Date();\nvar canaryMsg = {};\ncanaryMsg.payload = {};\ncanaryMsg.payload.tvqs = {};\n\n// configure your tag list here. \n// tag name should be fully qualified with what should be stored in the\n// canary historian ex. <dataset>.<path>.<tagname>\n// this list needs to be <= the number of coils configured to be\n// read from modbus (configured in the modbus function)\nvar tags = \n[\n    \"Node-Red.Input1\", // this tag is array item 0\n    \"Node-Red.Input2\", // this tag is array item 1\n    \"Node-Red.Input3\", // this tag is array item 2\n    \"Node-Red.Input4\", // ...\n    \"Node-Red.Input5\",\n    \"Node-Red.Input6\",\n    \"Node-Red.Input7\",\n    \"Node-Red.Input8\",\n    \"Node-Red.Input9\",\n    \"Node-Red.Input10\"\n];\n\nfor(var i=0; i<tags.length; i++)\n{\n    canaryMsg.payload.tvqs[tags[i]] = [[date.toISOString(), msg.values[i]]];\n}\n\nreturn canaryMsg;",
+	"outputs": 1,
+	"noerr": 0,
+	"x": 410,
+	"y": 140,
+	"wires": [["762e2f29.4c238"]]
+},
+{
+	"id": "a2cf267e.f3b568",
+	"type": "function",
+	"z": "36bffe6a.1eda32",
+	"name": "Log Holding Registers",
+	"func": "// takes an array of booleans from a modbus holding register read and \n// builds the payload to pass to the canary logging flow\n\nvar date = new Date();\nvar canaryMsg = {};\ncanaryMsg.payload = {};\ncanaryMsg.payload.tvqs = {};\n\n// configure your tag list here. \n// tag name should be fully qualified with what should be stored in the\n// canary historian ex. <dataset>.<path>.<tagname>\n// this list needs to be <= the number of input registers configured to be\n// be read from modbus (configured in the modbus function)\nvar tags = \n[\n    \"Node-Red.HoldingRegister1\", // this tag is array item 0\n    \"Node-Red.HoldingRegister2\", // this tag is array item 1\n    \"Node-Red.HoldingRegister3\", // this tag is array item 2\n    \"Node-Red.HoldingRegister4\", // ...\n    \"Node-Red.HoldingRegister5\",\n    \"Node-Red.HoldingRegister6\",\n    \"Node-Red.HoldingRegister7\",\n    \"Node-Red.HoldingRegister8\",\n    \"Node-Red.HoldingRegister9\",\n    \"Node-Red.HoldingRegister10\"\n];\n\nfor(var i=0; i<tags.length; i++)\n{\n    canaryMsg.payload.tvqs[tags[i]] = [[date.toISOString(), msg.values[i]]];\n}\n\nreturn canaryMsg;",
+	"outputs": 1,
+	"noerr": 0,
+	"x": 380,
+	"y": 200,
+	"wires": [["762e2f29.4c238"]]
+},
+{
+	"id": "1965f5c1.6c0c4a",
+	"type": "function",
+	"z": "36bffe6a.1eda32",
+	"name": "Log Input Registers",
+	"func": "// takes an array of booleans from a modbus coil read and \n// builds the payload to pass to the canary logging flow\n\nvar date = new Date();\nvar canaryMsg = {};\ncanaryMsg.payload = {};\ncanaryMsg.payload.tvqs = {};\n\n// configure your tag list here. \n// tag name should be fully qualified with what should be stored in the\n// canary historian ex. <dataset>.<path>.<tagname>\n// this list needs to be <= the number of input registers configured to be\n// read from modbus (configured in the modbus function)\nvar tags = \n[\n    \"Node-Red.InputRegister1\", // this tag is array item 0\n    \"Node-Red.InputRegister2\", // this tag is array item 1\n    \"Node-Red.InputRegister3\", // this tag is array item 2\n    \"Node-Red.InputRegister4\", // ...\n    \"Node-Red.InputRegister5\",\n    \"Node-Red.InputRegister6\",\n    \"Node-Red.InputRegister7\",\n    \"Node-Red.InputRegister8\",\n    \"Node-Red.InputRegister9\",\n    \"Node-Red.InputRegister10\"\n];\n\nfor(var i=0; i<tags.length; i++)\n{\n    canaryMsg.payload.tvqs[tags[i]] = [[date.toISOString(), msg.values[i]]];\n}\n\nreturn canaryMsg;",
+	"outputs": 1,
+	"noerr": 0,
+	"x": 390,
+	"y": 260,
+	"wires": [["762e2f29.4c238"]]
+},
+{
+	"id": "e60b3f18.60f22",
+	"type": "debug",
+	"z": "36bffe6a.1eda32",
+	"name": "Session Token",
+	"active": false,
+	"tosidebar": true,
+	"console": false,
+	"tostatus": false,
+	"complete": "payload",
+	"x": 420,
+	"y": 860,
+	"wires": []
+},
+{
+	"id": "c4a133f4.947dd",
+	"type": "template",
+	"z": "36bffe6a.1eda32",
+	"name": "Format UserToken JSON",
+	"field": "payload",
+	"fieldType": "msg",
+	"format": "handlebars",
+	"syntax": "mustache",
+	"template": "{\n    \"username\":\"\",\n    \"password\":\"\"\n}",
+	"output": "json",
+	"x": 170,
+	"y": 660,
+	"wires": [["223b95e5.f7a8da"]]
+},
+{
+	"id": "1862de8a.ea7c41",
+	"type": "debug",
+	"z": "36bffe6a.1eda32",
+	"name": "UserToken",
+	"active": false,
+	"tosidebar": true,
+	"console": false,
+	"tostatus": false,
+	"complete": "payload",
+	"x": 410,
+	"y": 700,
+	"wires": []
+},
+{
+	"id": "e0fe535c.99ff7",
+	"type": "comment",
+	"z": "36bffe6a.1eda32",
+	"name": "Debugging",
+	"info": "",
+	"x": 120,
+	"y": 1138,
+	"wires": []
+},
+{
+	"id": "66d4b8a7.eda7d8",
+	"type": "comment",
+	"z": "36bffe6a.1eda32",
+	"name": "This section reads data from modbus and builds the JSON payloads to send to the Canary API",
+	"info": "",
+	"x": 380,
+	"y": 40,
+	"wires": []
+},
+{
+	"id": "9de2c7ad.690a38",
+	"type": "comment",
+	"z": "36bffe6a.1eda32",
+	"name": "This section reads the buffer and calls the Canary sender API to store the buffered data",
+	"info": "",
+	"x": 360,
+	"y": 340,
+	"wires": []
+},
+{
+	"id": "e0e4c597.746728",
+	"type": "sqlite",
+	"z": "36bffe6a.1eda32",
+	"mydb": "cd8c24c9.025d38",
+	"sqlquery": "prepared",
+	"sql": "INSERT INTO buffer (`cmd`) VALUES ($cmd);",
+	"name": "Store to buffer",
+	"x": 640,
+	"y": 220,
+	"wires": [[]]
+},
+{
+	"id": "52570957.2bb4a8",
+	"type": "function",
+	"z": "36bffe6a.1eda32",
+	"name": "Format SQL",
+	"func": "var sqlMsg = {};\nsqlMsg.payload = {};\nsqlMsg.params = {\n    $cmd:msg.payload\n};\n\nreturn sqlMsg;",
+	"outputs": 1,
+	"noerr": 0,
+	"x": 630,
+	"y": 180,
+	"wires": [["e0e4c597.746728"]]
+},
+{
+	"id": "762e2f29.4c238",
+	"type": "json",
+	"z": "36bffe6a.1eda32",
+	"name": "ConvertToJson",
+	"property": "payload",
+	"action": "str",
+	"pretty": false,
+	"x": 640,
+	"y": 140,
+	"wires": [["52570957.2bb4a8"]]
+},
+{
+	"id": "1823086f.756fc8",
+	"type": "sqlite",
+	"z": "36bffe6a.1eda32",
+	"mydb": "cd8c24c9.025d38",
+	"sqlquery": "fixed",
+	"sql": "SELECT * FROM buffer WHERE sent = 0 ORDER BY tstamp LIMIT 1;",
+	"name": "Read buffer",
+	"x": 710,
+	"y": 460,
+	"wires": [["42b4a32c.fb9854"]]
+},
+{
+	"id": "c9a119d7.109358",
+	"type": "inject",
+	"z": "36bffe6a.1eda32",
+	"name": "First call",
+	"topic": "",
+	"payload": "",
+	"payloadType": "date",
+	"repeat": "",
+	"crontab": "",
+	"once": true,
+	"onceDelay": "1",
+	"x": 140,
+	"y": 380,
+	"wires": [["c383b26.2ae0a5"]]
+},
+{
+	"id": "818548d9.ad1608",
+	"type": "sqlite",
+	"z": "36bffe6a.1eda32",
+	"mydb": "cd8c24c9.025d38",
+	"sqlquery": "prepared",
+	"sql": "UPDATE buffer SET sent = 1 WHERE pk=$pk;",
+	"name": "Update Sent Status",
+	"x": 890,
+	"y": 680,
+	"wires": [["d75504a9.9fe6b8",
+	"1823086f.756fc8"]]
+},
+{
+	"id": "6aa5af6b.4b883",
+	"type": "function",
+	"z": "36bffe6a.1eda32",
+	"name": "Format SQL",
+	"func": "var sqlMsg = {};\nsqlMsg.payload = {};\nsqlMsg.params = {\n    $pk:msg.pk\n};\n\nreturn sqlMsg;",
+	"outputs": 1,
+	"noerr": 0,
+	"x": 710,
+	"y": 680,
+	"wires": [["818548d9.ad1608"]]
+},
+{
+	"id": "c77e11c5.e8a4d",
+	"type": "json",
+	"z": "36bffe6a.1eda32",
+	"name": "ConvertToObject",
+	"property": "payload[0].cmd",
+	"action": "obj",
+	"pretty": false,
+	"x": 730,
+	"y": 520,
+	"wires": [["fcb6c6ca.d18868"]],
+	"outputLabels": ["msg.payload.CmdText"]
+},
+{
+	"id": "fcb6c6ca.d18868",
+	"type": "function",
+	"z": "36bffe6a.1eda32",
+	"name": "Get Payload",
+	"func": "var storeMsg = {};\nstoreMsg.payload = msg.payload[0].cmd;\nstoreMsg.payload.userToken = global.get(\"canaryUserToken\");\nstoreMsg.payload.sessionToken = global.get(\"canarySessionToken\");\nstoreMsg.pk = msg.payload[0].pk;\nreturn storeMsg;",
+	"outputs": 1,
+	"noerr": 0,
+	"x": 710,
+	"y": 560,
+	"wires": [["759e5601.a10878"]]
+},
+{
+	"id": "4055f9ef.4e79e8",
+	"type": "inject",
+	"z": "36bffe6a.1eda32",
+	"name": "10s Interval",
+	"topic": "",
+	"payload": "",
+	"payloadType": "date",
+	"repeat": "10",
+	"crontab": "",
+	"once": false,
+	"onceDelay": "1",
+	"x": 150,
+	"y": 980,
+	"wires": [["763b708f.3add3"]]
+},
+{
+	"id": "763b708f.3add3",
+	"type": "sqlite",
+	"z": "36bffe6a.1eda32",
+	"mydb": "cd8c24c9.025d38",
+	"sqlquery": "fixed",
+	"sql": "DELETE FROM buffer WHERE sent = 1;",
+	"name": "Purge Sent Records",
+	"x": 380,
+	"y": 980,
+	"wires": [[]]
+},
+{
+	"id": "8aaeea9.6013518",
+	"type": "http request",
+	"z": "36bffe6a.1eda32",
+	"name": "TestTokens",
+	"method": "POST",
+	"ret": "obj",
+	"paytoqs": false,
+	"url": "http://localhost:55253/api/v1/getErrors",
+	"tls": "",
+	"proxy": "",
+	"x": 350,
+	"y": 460,
+	"wires": [["55a4a67d.489998"]]
+},
+{
+	"id": "55a4a67d.489998",
+	"type": "switch",
+	"z": "36bffe6a.1eda32",
+	"name": "",
+	"property": "payload.statusCode",
+	"propertyType": "msg",
+	"rules": [{
+		"t": "eq",
+		"v": "Good",
+		"vt": "str"
+	},
+	{
+		"t": "else"
+	}],
+	"checkall": "true",
+	"repair": false,
+	"outputs": 2,
+	"x": 510,
+	"y": 460,
+	"wires": [["1823086f.756fc8"],
+	["e13ee9e0.b02b28"]]
+},
+{
+	"id": "6659c608.94b778",
+	"type": "http request",
+	"z": "36bffe6a.1eda32",
+	"name": "RevokeSessionToken",
+	"method": "POST",
+	"ret": "obj",
+	"paytoqs": false,
+	"url": "http://localhost:55253/api/v1/revokeSessionToken",
+	"tls": "",
+	"proxy": "",
+	"x": 160,
+	"y": 540,
+	"wires": [["beff5503.40c838"]]
+},
+{
+	"id": "e13ee9e0.b02b28",
+	"type": "template",
+	"z": "36bffe6a.1eda32",
+	"name": "RevokeSessionToken JSON",
+	"field": "payload",
+	"fieldType": "msg",
+	"format": "handlebars",
+	"syntax": "mustache",
+	"template": "{\n    \"userToken\": \"{{global.canaryUserToken}}\",\n    \"sessionToken\": \"{{global.canarySessionToken}}\"\n}",
+	"output": "json",
+	"x": 180,
+	"y": 500,
+	"wires": [["6659c608.94b778"]]
+},
+{
+	"id": "1e354b41.ec3145",
+	"type": "http request",
+	"z": "36bffe6a.1eda32",
+	"name": "RevokeUserToken",
+	"method": "POST",
+	"ret": "obj",
+	"paytoqs": false,
+	"url": "http://localhost:55253/api/v1/revokeUserToken",
+	"tls": "",
+	"proxy": "",
+	"x": 150,
+	"y": 620,
+	"wires": [["c4a133f4.947dd"]]
+},
+{
+	"id": "beff5503.40c838",
+	"type": "template",
+	"z": "36bffe6a.1eda32",
+	"name": "RevokeUserToken JSON",
+	"field": "payload",
+	"fieldType": "msg",
+	"format": "handlebars",
+	"syntax": "mustache",
+	"template": "{\n    \"userToken\":\"{{global.canaryUserToken}}\"\n}",
+	"output": "json",
+	"x": 170,
+	"y": 580,
+	"wires": [["1e354b41.ec3145"]]
+},
+{
+	"id": "6f2f1b84.7e0794",
+	"type": "template",
+	"z": "36bffe6a.1eda32",
+	"name": "TestTokens JSON",
+	"field": "payload",
+	"fieldType": "msg",
+	"format": "handlebars",
+	"syntax": "mustache",
+	"template": "{\n    \"userToken\":\"{{global.canaryUserToken}}\",\n    \"sessionToken\":\"{{global.canarySessionToken}}\"\n}",
+	"output": "json",
+	"x": 150,
+	"y": 460,
+	"wires": [["8aaeea9.6013518"]]
+},
+{
+	"id": "17fa272a.1ccc49",
+	"type": "comment",
+	"z": "36bffe6a.1eda32",
+	"name": "Purge records from the buffer that were sent",
+	"info": "",
+	"x": 223,
+	"y": 940,
+	"wires": []
+},
+{
+	"id": "42b4a32c.fb9854",
+	"type": "switch",
+	"z": "36bffe6a.1eda32",
+	"name": "",
+	"property": "payload.length",
+	"propertyType": "msg",
+	"rules": [{
+		"t": "eq",
+		"v": "1",
+		"vt": "num"
+	},
+	{
+		"t": "else"
+	}],
+	"checkall": "true",
+	"repair": false,
+	"outputs": 2,
+	"x": 870,
+	"y": 460,
+	"wires": [["c77e11c5.e8a4d"],
+	["695e10ba.60bf4"]]
+},
+{
+	"id": "695e10ba.60bf4",
+	"type": "delay",
+	"z": "36bffe6a.1eda32",
+	"name": "",
+	"pauseType": "delay",
+	"timeout": "1",
+	"timeoutUnits": "seconds",
+	"rate": "1",
+	"nbRateUnits": "1",
+	"rateUnits": "second",
+	"randomFirst": "1",
+	"randomLast": "5",
+	"randomUnits": "seconds",
+	"drop": false,
+	"x": 1120,
+	"y": 420,
+	"wires": [["6f2f1b84.7e0794"]]
+},
+{
+	"id": "c383b26.2ae0a5",
+	"type": "function",
+	"z": "36bffe6a.1eda32",
+	"name": "Initialize Global Vars",
+	"func": "global.set(\"canaryUserToken\", \"userToken\");\nglobal.set(\"canarySessionToken\", \"sessionToken\");\nreturn msg;",
+	"outputs": 1,
+	"noerr": 0,
+	"x": 160,
+	"y": 420,
+	"wires": [["6f2f1b84.7e0794"]]
+},
+{
+	"id": "9533b6bf.17a808",
+	"type": "modbus-client",
+	"z": "",
+	"name": "Local Simulator",
+	"clienttype": "tcp",
+	"bufferCommands": true,
+	"stateLogEnabled": false,
+	"tcpHost": "localhost",
+	"tcpPort": "502",
+	"tcpType": "DEFAULT",
+	"serialPort": "/dev/ttyUSB",
+	"serialType": "RTU-BUFFERD",
+	"serialBaudrate": "9600",
+	"serialDatabits": "8",
+	"serialStopbits": "1",
+	"serialParity": "none",
+	"serialConnectionDelay": "100",
+	"unit_id": "1",
+	"commandDelay": "1",
+	"clientTimeout": "1000",
+	"reconnectTimeout": "2000"
+},
+{
+	"id": "cd8c24c9.025d38",
+	"type": "sqlitedb",
+	"z": "",
+	"db": "/home/pi/buffer.db"
+}]

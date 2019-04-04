@@ -1,7 +1,6 @@
 Canary Labs Node-Red Store And Forward Example
 - Tested with Node-Red v0.20.3
 - Depends upon node-red-contrib-modbus module (v4.1.3 tested)
-- Depends upon node-red-contrib-splitter module (v0.0.16 tested)
 - Depends upon node-red-node-sqlite (v0.3.6 tested)
 - Reads coils, inputs, holding registers, and input registers from a Modbus device and logs to the Canary historian
 - Utilizes the Canary Sender Web API for storage
