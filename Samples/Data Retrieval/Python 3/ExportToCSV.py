@@ -370,7 +370,7 @@ while True:
                 if recordIndex < len(tagTvqs):
                     record = tagTvqs[recordIndex]
                     # each tvq record for the tag
-                    # record is a dict with the keys 't', 'v', and 'q' that corrospond to timestamp, value, and quality
+                    # record is a dict with the keys 't', 'v', and 'q' that correspond to timestamp, value, and quality
                     csvObj['Timestamp'] = record['t']
                     csvObj[tagKey] = record['v']
                     if includeQuality:
