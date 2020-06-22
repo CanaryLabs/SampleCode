@@ -377,17 +377,17 @@ repeat {
 
     # remove the timestamp column from each tag.
     result_data_frame <- result_data_frame %>%
-        select(!matches(".*?\\.t"))
+        select(!matches(".*?\\.t$"))
 
     # rename the columns to be easier to read.
-    colnames(result_data_frame) <- sub("(.*?)\\.v", "\\1", colnames(result_data_frame))
-    colnames(result_data_frame) <- sub("(.*?)\\.q", "\\1 Quality", colnames(result_data_frame))
+    colnames(result_data_frame) <- sub("(.*?)\\.v$", "\\1", colnames(result_data_frame))
+    colnames(result_data_frame) <- sub("(.*?)\\.q$", "\\1 Quality", colnames(result_data_frame))
 
     # write the dataframe to a csv file.
     invisible(write.table(x = result_data_frame, file = csv_file_name, append = TRUE, sep = ",", row.names = FALSE, col.names = !header_row_written))
     header_row_written <- TRUE
 
-    if (is.null(continuation) | is.na(continuation)[1]) {
+    if (is.null(continuation) || is.na(continuation)[1]) {
         break
     }
 }
