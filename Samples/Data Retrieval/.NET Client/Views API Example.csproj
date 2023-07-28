@@ -33,6 +33,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="CanaryWebServiceHelper">
+      <HintPath>..\..\..\..\..\Dev\Projects\Views Helper\bin\Debug\CanaryWebServiceHelper.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.ServiceModel" />
@@ -50,12 +53,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\Shared\CanaryWebServiceHelper\CanaryWebServiceHelper.csproj">
-      <Project>{565510de-6c5d-4f6b-a674-6c9fae4f8a38}</Project>
-      <Name>CanaryWebServiceHelper</Name>
-    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

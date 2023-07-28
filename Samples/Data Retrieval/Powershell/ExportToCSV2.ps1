@@ -18,7 +18,7 @@
 # 11: include quality ex. 0 or 1
 # 12: numeric precision digits
 
-$apiURL = $args[0]+"/api/v1/"
+$apiURL = $args[0]+"/api/v2/"
 $tagsToRead = Get-Content $args[1] | ForEach-Object {"$_"}
 $csvFileName = $args[2]
 $startTime = $args[3]
@@ -78,8 +78,8 @@ do
     # convert to JSON for sending
     $reqBodyJson = ConvertTo-Json $reqBody -Depth 100
 
-    # call the /getTagData endpoint to get data for the tags
-    $tagDataRaw = (Invoke-WebRequest -Uri ($apiURL+"getTagData") -Method POST -Body $reqBodyJson -ContentType "application/json").Content
+    # call the /getTagData2 endpoint to get data for the tags
+    $tagDataRaw = (Invoke-WebRequest -Uri ($apiURL+"getTagData2") -Method POST -Body $reqBodyJson -ContentType "application/json").Content
     $tagData = $tagDataRaw | ConvertFrom-Json
     if ($tagData.statusCode -ne "Good")
     {

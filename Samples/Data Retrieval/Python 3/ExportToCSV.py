@@ -340,8 +340,8 @@ while True:
     if maxSize: reqBody['maxSize'] = maxSize
     if continuation: reqBody['continuation'] = continuation
 
-    # call the /getTagData endpoint to get data for the tags
-    response = session.post(apiURL + 'getTagData', data=json.dumps(reqBody))
+    # call the /getTagData2 endpoint to get data for the tags
+    response = session.post(apiURL + 'getTagData2', data=json.dumps(reqBody))
     tagData = response.json()
 
     # check for errors

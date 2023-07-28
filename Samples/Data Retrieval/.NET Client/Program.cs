@@ -8,9 +8,9 @@ using System.Threading.Tasks;
 
 namespace ReadData
 {
-    class Program
+    internal class Program
     {
-        static void Main(string[] args)
+        private static void Main(string[] args)
         {
             ResizeWindow();
 
@@ -60,7 +60,7 @@ namespace ReadData
             Console.ReadKey();
         }
 
-        static private void ResizeWindow()
+        private static void ResizeWindow()
         {
             try
             {
@@ -74,13 +74,13 @@ namespace ReadData
             }
         }
 
-        static private void Version(HistorianWebServiceClient client)
+        private static void Version(HistorianWebServiceClient client)
         {
             string version = client.WebServiceVersion();
             Console.WriteLine($"Version: {version}");
         }
 
-        static private void BrowseNodes(HistorianWebServiceClient client, out string nodePath)
+        private static void BrowseNodes(HistorianWebServiceClient client, out string nodePath)
         {
             Console.WriteLine();
             Console.WriteLine("Browse Nodes...");
@@ -109,7 +109,7 @@ namespace ReadData
             }
         }
 
-        static private void BrowseTags(HistorianWebServiceClient client, string nodePath, out List<string> tags)
+        private static void BrowseTags(HistorianWebServiceClient client, string nodePath, out List<string> tags)
         {
             Console.WriteLine();
             Console.WriteLine("Browse All Tags...");
@@ -149,7 +149,7 @@ namespace ReadData
             }
         }
 
-        static private void GetCurrentValue(HistorianWebServiceClient client, int cci, List<string> tags)
+        private static void GetCurrentValue(HistorianWebServiceClient client, int cci, List<string> tags)
         {
             Console.WriteLine();
             Console.WriteLine("Getting Current Values...");
@@ -172,7 +172,7 @@ namespace ReadData
             }
         }
 
-        static private void GetRawData(HistorianWebServiceClient client, int cci, List<string> tags, DateTime startTime, DateTime endTime)
+        private static void GetRawData(HistorianWebServiceClient client, int cci, List<string> tags, DateTime startTime, DateTime endTime)
         {
             Console.WriteLine();
             Console.WriteLine("Getting Raw Data...");
@@ -224,7 +224,7 @@ namespace ReadData
             }
         }
 
-        static private void GetAvailableAggregates(HistorianWebServiceClient client)
+        private static void GetAvailableAggregates(HistorianWebServiceClient client)
         {
             Console.WriteLine();
             Console.WriteLine("Getting available aggregates for processed data...");
@@ -237,7 +237,7 @@ namespace ReadData
             }
         }
 
-        static private void GetProcessedData(HistorianWebServiceClient client, int cci, List<string> tags, DateTime startTime, DateTime endTime)
+        private static void GetProcessedData(HistorianWebServiceClient client, int cci, List<string> tags, DateTime startTime, DateTime endTime)
         {
             Console.WriteLine();
             Console.WriteLine("Getting Processed Data...");
@@ -251,17 +251,17 @@ namespace ReadData
                 string historian = split[0];
                 string partialTag = string.Join(".", split.Skip(1));
 
-                HWSTagProcessedRequest2[] request = new HWSTagProcessedRequest2[]
+                HWSTagProcessedRequest3[] request = new HWSTagProcessedRequest3[]
                 {
-                    new HWSTagProcessedRequest2()
+                    new HWSTagProcessedRequest3()
                     {
-                        aggregateId = HWSAggregate.TimeAverage2,
+                        aggregateName = HWSAggregate.TimeAverage2.ToString(),
                         tagName = partialTag
                     }
                 };
 
                 bool returnAnnotations = false;
-                HWSTagProcessedData2 result = client.GetProcessedTagData2(historian, request, startTime, endTime, aggregateInterval, returnAnnotations, cci)[0];
+                HWSTagProcessedData2 result = client.GetProcessedTagData3(historian, request, startTime, endTime, aggregateInterval, returnAnnotations, cci)[0];
                 if (result != null)
                 {
                     if (!string.IsNullOrEmpty(result.errMsg))

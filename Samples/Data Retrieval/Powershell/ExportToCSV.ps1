@@ -6,14 +6,14 @@
 # default Canary views web api ports are:
 #   55235: http
 #   55236: https
-# ex: http://localhost:55235/api/v1/"
-# ex: https://localhost:55236/api/v1/"
+# ex: http://localhost:55235/api/v2/"
+# ex: https://localhost:55236/api/v2/"
 
 #############################################
 # Canary Views Web API Settings
 #############################################
 # api url. must end with slash '/' (the port number is configured through the views tile in the Canary Admin. default = 55235)
-$apiURL = "http://localhost:55235/api/v1/"
+$apiURL = "http://localhost:55235/api/v2/"
 # timezone is used to convert times to/from the clients' timezone. valid timezone strings are found via the /getTimeZones api endpoint, which returns:
 # "Dateline Standard Time",
 # "UTC-11",
@@ -354,8 +354,8 @@ do
     # convert to JSON for sending
     $reqBodyJson = ConvertTo-Json $reqBody -Depth 100
 
-    # call the /getTagData endpoint to get data for the tags
-    $tagDataRaw = (Invoke-WebRequest -Uri ($apiURL+"getTagData") -Method POST -Body $reqBodyJson -ContentType "application/json").Content
+    # call the /getTagData2 endpoint to get data for the tags
+    $tagDataRaw = (Invoke-WebRequest -Uri ($apiURL+"getTagData2") -Method POST -Body $reqBodyJson -ContentType "application/json").Content
     $tagData = $tagDataRaw | ConvertFrom-Json
     if ($tagData.statusCode -ne "Good")
     {

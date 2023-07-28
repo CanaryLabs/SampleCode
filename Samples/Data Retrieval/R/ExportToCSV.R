@@ -346,8 +346,8 @@ repeat {
         request_body <- request_body_base
     }
 
-    # call the /getTagData endpoint to get data for the tags
-    response <- POST(paste(api_url, "getTagData", sep = ""), body = request_body, encode = "json")
+    # call the /getTagData2 endpoint to get data for the tags
+    response <- POST(paste(api_url, "getTagData2", sep = ""), body = request_body, encode = "json")
     response_text <- content(response, as = "text", encoding = "UTF-8")
     response_content <- fromJSON(response_text)
 
@@ -359,7 +359,7 @@ repeat {
         quit(save = "no")
     }
 
-    # store the continuation point so it can be used in the next call to getTagData
+    # store the continuation point so it can be used in the next call to getTagData2
     continuation <- response_content[["continuation"]]
 
     tag_data <- response_content[["data"]]

@@ -20,7 +20,7 @@
 # 12: numeric precision digits
 # 13: search text ex. 'cpu' (all tags that match 'cpu' in their name. multiple strings can be added separated by a space like 'flow oil')
 
-$apiURL = $args[0]+"/api/v1/"
+$apiURL = $args[0]+"/api/v2/"
 $pathToRead = $args[1]
 $csvFileName = $args[2]
 $startTime = $args[3]
@@ -123,8 +123,8 @@ do
     # convert to JSON for sending
     $reqBodyJson = ConvertTo-Json $reqBody -Depth 100
 
-    # call the /getTagData endpoint to get data for the tags
-    $tagDataRaw = (Invoke-WebRequest -Uri ($apiURL+"getTagData") -Method POST -Body $reqBodyJson -ContentType "application/json").Content
+    # call the /getTagData2 endpoint to get data for the tags
+    $tagDataRaw = (Invoke-WebRequest -Uri ($apiURL+"getTagData2") -Method POST -Body $reqBodyJson -ContentType "application/json").Content
     $tagData = $tagDataRaw | ConvertFrom-Json
     if ($tagData.statusCode -ne "Good")
     {

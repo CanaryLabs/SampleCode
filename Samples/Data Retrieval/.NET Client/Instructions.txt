@@ -1,0 +1,1 @@
+This application requires a reference to the latest version of the CanaryWebServiceHelper.dll. This dll can be found within the Canary program files installation directory.

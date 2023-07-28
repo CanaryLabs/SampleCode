@@ -8,12 +8,14 @@ using System.Threading.Tasks;
 
 namespace ReadData
 {
-    class ConnectionException : Exception
+    internal class ConnectionException : Exception
     {
-        public ConnectionException(string message = "Unable to connect to endpoint.") : base(message) { }
+        public ConnectionException(string message = "Unable to connect to endpoint.") : base(message)
+        {
+        }
     }
 
-    class ConnectionWrapper : IDisposable
+    internal class ConnectionWrapper : IDisposable
     {
         #region Private Members
 
@@ -28,7 +30,7 @@ namespace ReadData
         private string _password;
         private int _cci; // client connection id
 
-        #endregion
+        #endregion Private Members
 
         #region Private Methods
 
@@ -125,7 +127,7 @@ namespace ReadData
             }
         }
 
-        #endregion
+        #endregion Private Methods
 
         #region Constructor/Destructor
 
@@ -145,7 +147,7 @@ namespace ReadData
             Disconnect();
         }
 
-        #endregion
+        #endregion Constructor/Destructor
 
         #region Public Properties
 
@@ -164,7 +166,7 @@ namespace ReadData
             set { _port = value; }
         }
 
-        #endregion
+        #endregion Public Properties
 
         #region Public Methods
 
@@ -193,6 +195,6 @@ namespace ReadData
             Disconnect();
         }
 
-        #endregion
+        #endregion Public Methods
     }
 }

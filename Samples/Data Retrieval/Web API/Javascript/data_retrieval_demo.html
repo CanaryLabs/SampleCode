@@ -89,8 +89,8 @@
     var _liveDataToken = null;
     var _tags = [];
     var _baseUrls = [
-      "http://localhost:55235/api/v1",
-      "https://localhost:55236/api/v1"
+      "http://localhost:55235/api/v2",
+      "https://localhost:55236/api/v2"
     ];
     var _baseUrl = _baseUrls[0];
     
@@ -151,7 +151,7 @@
         }
         
         $.ajax({
-          url: _baseUrl + "/getTagData",
+          url: _baseUrl + "/getTagData2",
           method: "POST",
           data: JSON.stringify({
             "userToken": _userToken,
@@ -170,7 +170,7 @@
         
         // forward processed data
         $.ajax({
-          url: _baseUrl + "/getTagData",
+          url: _baseUrl + "/getTagData2",
           method: "POST",
           data: JSON.stringify({
             "userToken": _userToken,
@@ -203,7 +203,7 @@
         
         // forward processed data
         $.ajax({
-          url: _baseUrl + "/getTagData",
+          url: _baseUrl + "/getTagData2",
           method: "POST",
           data: JSON.stringify({
             "userToken": _userToken,
