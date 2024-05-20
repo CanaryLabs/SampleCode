@@ -1,0 +1,9 @@
+This application requires references to the latest version of the following dlls.
+
+Canary.Utility.CanaryClientHelper.dll
+Canary.Utility.GrpcHelper.dll
+Canary.Utility.ProtobufSharedTypes.dll
+Canary.Views.Grpc.Api.dll - A copy of the proto file used in this dll is included in this directory
+Canary.Views.Grpc.Common.dll
+
+These dlls can be found within the Canary program files installation directory.
