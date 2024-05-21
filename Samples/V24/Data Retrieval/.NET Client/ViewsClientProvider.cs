@@ -32,6 +32,7 @@ namespace ReadData
             _viewsEndpoint = viewsEndpoint;
         }
 
+        // Takes a function that has the CanaryViewsApiServiceClient and cci as parameters
         public async Task<T> MakeRequestAsync<T>(Func<CanaryViewsApiServiceClient, int, Task<T>> requestAction)
         {
             return await MakeRequestAsync(async (ViewsClientConnectionContext context) =>
@@ -40,6 +41,7 @@ namespace ReadData
             });
         }
 
+        // Releases the Client Connection Id in the Views Service
         public async Task ReleaseCciAsync()
         {
             try
@@ -64,6 +66,7 @@ namespace ReadData
                     }
                     finally
                     {
+                        // Reset the client context so that CreateClientContext is called again on the next MakeRequestAsync call
                         ResetClientContext(context);
                     }
 
@@ -73,42 +76,15 @@ namespace ReadData
             catch { }
         }
 
-        protected override async Task<ViewsClientConnectionContext> CreateClientContext()
+        public static async Task<int> GetCciAsync(CanaryViewsApiServiceClient client)
         {
-            CanaryViewsApiServiceClient client = await GetViewsClient();
-            int cci = await GetCciAsync(client);
-            var clientConnection = new ViewsClientConnectionContext(client, cci);
-            return clientConnection;
-        }
+            GetClientConnectionIdResponse getCciResponse = await client.GetClientConnectionIdAsync(
+                new GetClientConnectionIdRequest()
+                {
+                    App = APP_ID,
+                    UserId = System.Net.Dns.GetHostName() + ":" + System.Environment.UserName
+                });
 
-        protected override async Task<T> MakeRequestAsync<T>(Func<ViewsClientConnectionContext, Task<T>> requestAction)
-        {
-            try
-            {
-                return await base.MakeRequestAsync(requestAction);
-            }
-            catch (GrpcFailedRequestException ex)
-            {
-                throw new Exception("Views Service request failed.", ex);
-            }
-        }
-
-        private static async Task<int> GetCciAsync(CanaryViewsApiServiceClient client)
-        {
-            GetClientConnectionIdResponse getCciResponse;
-            try
-            {
-                getCciResponse = await client.GetClientConnectionIdAsync(
-                    new GetClientConnectionIdRequest()
-                    {
-                        App = APP_ID,
-                        UserId = System.Net.Dns.GetHostName() + ":" + System.Environment.UserName
-                    });
-            }
-            catch (RpcException ex)
-            {
-                throw new Exception("Views Service request failed.", ex);
-            }
 
             if (getCciResponse.Status.StatusType == Canary.Views.Grpc.Common.ApiCallStatusType.NoLicense)
                 throw new Exception("Views License is not available at this time.");
@@ -118,13 +94,13 @@ namespace ReadData
             return getCciResponse.Cci;
         }
 
-        private async Task<CanaryViewsApiServiceClient> GetViewsClient()
+        public static async Task<CanaryViewsApiServiceClient> Connect(string viewsEndpoint, string identityToken)
         {
             return await GrpcClientConnectionHelper.Instance.GetViewsClientAsync(
-                _viewsEndpoint,
+                viewsEndpoint,
                 (callOptions) =>
                 {
-                    var clientToken = CanaryClientToken.CreateApiToken(_identityApiToken);
+                    var clientToken = CanaryClientToken.CreateApiToken(identityToken);
                     if (clientToken is null)
                         return callOptions;
 
@@ -135,6 +111,33 @@ namespace ReadData
                             value: clientToken.TokenValue)
                     });
                 });
+        }
+
+        // Called by the base class
+        // Makes the connection to Views and retrieves the Client Connection Id required for data calls
+        protected override async Task<ViewsClientConnectionContext> CreateClientContext()
+        {
+            CanaryViewsApiServiceClient client = await Connect(_viewsEndpoint, _identityApiToken);
+            int cci = await GetCciAsync(client);
+
+            // The CanaryViewsApiServiceClient and cci are saved into the base class. They are made available to the user inside the function parameter of the MakeRequestAsync method
+            return new ViewsClientConnectionContext(client, cci);
+        }
+
+
+        protected override async Task<T> MakeRequestAsync<T>(Func<ViewsClientConnectionContext, Task<T>> requestAction)
+        {
+            try
+            {
+                // The base method calls CreateClientContext if it has not been done yet or if the context has been reset. It
+                // then invokes the requestAction with the client context as the parameter
+                return await base.MakeRequestAsync(requestAction);
+            }
+            catch (GrpcFailedRequestException)
+            {
+                // Logic can be added here to handle Views Service disconnects
+                throw;
+            }
         }
     }
 }

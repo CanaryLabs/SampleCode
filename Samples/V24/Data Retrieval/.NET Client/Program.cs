@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading.Tasks;
+using static Canary.Views.Grpc.Api.CanaryViewsApiService;
 
 namespace ReadData
 {
@@ -18,17 +19,19 @@ namespace ReadData
             ResizeWindow();
 
             string host = "localhost";
-            string identityApiToken = ""; // Api token configured in the Identity tile of the Admin
-            var client = new ViewsClientProvider(identityApiToken, host);
+            string identityApiToken = "11111111-2222-3333-4444-555555555555"; // This is the anonymous api token. If anonymous is not enabled, another api token will need configured
 
+            List<string> tags = [];
+
+            // Example 1: Manually manage connection status/cci
             try
             {
-                // test version
-                await GetVersionAsync(client);
+                // Manually call the Connect method
+                CanaryViewsApiServiceClient serviceClient = await ViewsClientProvider.Connect(host, identityApiToken);
 
                 // browse nodes/tags
-                string nodePath = await BrowseNodesAsync(client);
-                List<string> tags = await BrowseTagsAsync(client, nodePath);
+                string nodePath = await BrowseNodesAsync(serviceClient);
+                tags = await BrowseTagsAsync(serviceClient, nodePath);
 
                 if (tags != null && tags.Count > 0)
                 {
@@ -36,11 +39,37 @@ namespace ReadData
                     DateTime startTime = endTime.Subtract(TimeSpan.FromHours(1));
                     List<string> tagSubset = tags.Take(5).ToList();
 
+                    // Manually retrieve cci to pass to the data call
+                    int cci = await ViewsClientProvider.GetCciAsync(serviceClient);
+
                     // read data
-                    await GetCurrentValueAsync(client, tagSubset);
-                    await GetRawDataAsync(client, tagSubset, startTime, endTime);
-                    await GetAvailableAggregatesAsync(client);
-                    await GetAggregateDataAsync(client, tagSubset, startTime, endTime);
+                    await GetCurrentValueAsync(serviceClient, cci, tagSubset);
+
+                    await serviceClient.ReleaseClientConnectionIdAsync(new ReleaseClientConnectionIdRequest()
+                    {
+                        Cci = cci
+                    });
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Exception: {ex.Message}");
+            }
+
+            // Example 2: Use helper class MakeRequestAsync method to automatically manage connection status/cci
+            var clientProvider = new ViewsClientProvider(identityApiToken, host);
+
+            try
+            {
+                if (tags != null && tags.Count > 0)
+                {
+                    DateTime endTime = DateTime.Now;
+                    DateTime startTime = endTime.Subtract(TimeSpan.FromHours(1));
+                    List<string> tagSubset = tags.Take(5).ToList();
+
+                    await GetRawDataAsync(clientProvider, tagSubset, startTime, endTime);
+                    await GetAvailableAggregatesAsync(clientProvider);
+                    await GetAggregateDataAsync(clientProvider, tagSubset, startTime, endTime);
                 }
             }
             catch (Exception ex)
@@ -49,7 +78,7 @@ namespace ReadData
             }
             finally
             {
-                await client.ReleaseCciAsync();
+                await clientProvider.ReleaseCciAsync();
             }
 
             Console.WriteLine();
@@ -83,7 +112,7 @@ namespace ReadData
                 Console.WriteLine($"Views Version: {response.Version}");
         }
 
-        private static async Task<string> BrowseNodesAsync(ViewsClientProvider client)
+        private static async Task<string> BrowseNodesAsync(CanaryViewsApiServiceClient client)
         {
             Console.WriteLine();
             Console.WriteLine("Browse Nodes...");
@@ -91,12 +120,10 @@ namespace ReadData
             string nodePath = "ROOT"; // base path
             while (true)
             {
-                BrowseResponse response = await client.MakeRequestAsync(async (client, cci) => {
-                    return await client.BrowseAsync(new BrowseRequest()
-                    {
-                        NodeIdPath = nodePath,
-                        ForceReload = false
-                    });
+                BrowseResponse response = await client.BrowseAsync(new BrowseRequest()
+                {
+                    NodeIdPath = nodePath,
+                    ForceReload = false
                 });
 
                 if (HasBadStatus(response.Status, nameof(BrowseNodesAsync), out string? errorMessage))
@@ -118,7 +145,7 @@ namespace ReadData
             return nodePath;
         }
 
-        private static async Task<List<string>> BrowseTagsAsync(ViewsClientProvider client, string nodePath)
+        private static async Task<List<string>> BrowseTagsAsync(CanaryViewsApiServiceClient client, string nodePath)
         {
             Console.WriteLine();
             Console.WriteLine("Browse All Tags...");
@@ -130,15 +157,13 @@ namespace ReadData
                 int maxCount = 1000;
                 bool includeSubNodes = true;
                 bool includeProperties = false;
-                BrowseTagsResponse response = await client.MakeRequestAsync(async (client, cci) => {
-                    return await client.BrowseTagsAsync(new BrowseTagsRequest()
-                    {
-                        NodeIdBrowse = nodePath,
-                        IncludeSubNodes = includeSubNodes,
-                        IncludeProperties = includeProperties,
-                        MaxCount = maxCount,
-                        SearchContext = search,
-                    });
+                BrowseTagsResponse response = await client.BrowseTagsAsync(new BrowseTagsRequest()
+                {
+                    NodeIdBrowse = nodePath,
+                    IncludeSubNodes = includeSubNodes,
+                    IncludeProperties = includeProperties,
+                    MaxCount = maxCount,
+                    SearchContext = search,
                 });
 
                 if (HasBadStatus(response.Status, nameof(BrowseTagsAsync), out string? errorMessage))
@@ -167,7 +192,7 @@ namespace ReadData
             return tags;
         }
 
-        private static async Task GetCurrentValueAsync(ViewsClientProvider client, List<string> tags)
+        private static async Task GetCurrentValueAsync(CanaryViewsApiServiceClient client, int cci, List<string> tags)
         {
             Console.WriteLine();
             Console.WriteLine("Getting Current Values...");
@@ -178,14 +203,12 @@ namespace ReadData
                 string view = split[0];
                 string partialTag = string.Join(".", split.Skip(1));
 
-                GetTagCurrentValueResponse response = await client.MakeRequestAsync(async (client, cci) => {
-                    return await client.GetTagCurrentValueAsync(new GetTagCurrentValueRequest()
-                    {
-                        View = view,
-                        TagNames = { partialTag },
-                        UseTimeExtension = true,
-                        Cci = cci
-                    });
+                GetTagCurrentValueResponse response = await client.GetTagCurrentValueAsync(new GetTagCurrentValueRequest()
+                {
+                    View = view,
+                    TagNames = { partialTag },
+                    UseTimeExtension = true,
+                    Cci = cci
                 });
 
                 if (HasBadStatus(response.Status, nameof(GetCurrentValueAsync), out string? errorMessage))
