@@ -6,4 +6,4 @@ Canary.Utility.ProtobufSharedTypes.dll
 Canary.Views.Grpc.Api.dll
 Canary.Views.Grpc.Common.dll
 
-These dlls can be found within the Views folder of the Canary program files installation directory.
+These dlls can be found within the Views folder of the Canary program files installation directory. The proto files contained within these dlls can be found in API\Protos\Views.
