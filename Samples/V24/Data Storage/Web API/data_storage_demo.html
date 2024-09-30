@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Store and Forward API Demo</title>
+  <meta charset="UTF-8">
+  <style>
+    html, body {
+      padding:0;
+      margin:0;
+    }
+    * {
+      font-family: "calibri"
+    }
+    h1 {
+      margin:0;
+      padding:0.5rem;
+    }
+    p {
+      margin:0;
+      padding:0.5rem;
+      max-width:600px;
+    }
+    ol {
+      margin:0;
+      padding:0.5rem;
+      padding-left:2.5rem;
+      margin-bottom:1.5rem;
+      max-width:600px;
+    }
+    li {
+      margin:0;
+      padding:0;
+    }
+    button {
+      margin:0;
+      margin-bottom:1rem;
+      padding:0 1rem;
+      width:140px;
+    }
+    #screen-left {
+      position:absolute;
+      left:0;
+      width:50%;
+      height:100%;
+      overflow:auto;
+      box-sizing:border-box;
+      border-right:1px solid rgba(0,0,0,0.2);
+      padding:1rem;
+    }
+    #screen-right {
+      position:absolute;
+      left:50%;
+      width:50%;
+      height:100%;
+      overflow:auto;
+      border-right:2px solid #555;
+      box-sizing:border-box;
+      padding:1rem;
+    }
+    #main-script-container {
+      white-space:pre;
+      background:#eee;
+      font-family:monospace;
+    }
+    #script-actions h3 {
+      text-align:center;
+    }
+    #script-actions > div {
+      padding:0rem 1rem;
+      background:#eee;
+      display:inline-block;
+      vertical-align:top;
+      margin-right:0.5rem;
+    }
+    #script-actions #primary-methods button {
+      font-weight:bold;
+      text-decoration:underline;
+    }
+  </style>
+  <!--
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.22.2/moment.min.js"></script>
+  -->
+  
+  <script src="Javascript\jquery.min.js"></script>
+  <script src="Javascript\moment.min.js"></script>
+  
+  <!--<script src="moment.js"></script>-->
+  <script id="main-script">
+    var _apiToken = ""; // API token configured in the Identity service
+    var _sessionToken = null; // will need to remember this
+    var _historian = "localhost";
+    var _tags = [
+      "WebAPI.Tag1", // WebAPI is the dataset
+      "WebAPI.Tag2", // WebAPI is the dataset
+      "WebAPI.Tag3" // WebAPI is the dataset
+    ];
+
+    var _baseUrl = "https://localhost:55293/api/v1";
+    
+    var _apiMethods = [{
+      "getSessionToken": function() {
+        $.ajax({
+          url: _baseUrl + "/getSessionToken",
+          method: "POST",
+          dataType: "json",
+           contentType: "application/json",
+          data: JSON.stringify({
+            "apiToken": _apiToken,
+            "clientId": "Test",
+            "historians": [_historian],
+          })
+        }).done(function(data) {
+          console.log("getSessionId", data);
+          
+          _sessionToken = data.sessionToken;
+        });
+      },
+      "storeData": function() {
+        var tvqs = {};
+        var properties = {};
+        var annotations = {};
+        
+        var tvqCount = 10;
+        var tvqInterval = 1000;
+        var startDate = new Date(new Date().getTime() - tvqCount * tvqInterval);
+        for(var i = 0; i < _tags.length; i++) {
+          var tag = _tags[i];
+          tvqs[tag] = [];
+          for(var j = 0; j < tvqCount; j++) {
+            var timestamp = new Date(startDate.getTime() + j * tvqInterval)
+            tvqs[tag].push([
+              toUtcString(timestamp), // timestamp
+              j, // value
+              192 // OPC quality, 192 is a "Good" OPC quality
+              // ADDITIONAL NOTE: the terms "Good", "Bad", "NoData" can be used for the quality and will be translated to the proper OPC qualities
+            ]);
+          }
+        }
+        console.log("TVQs", tvqs);
+        
+        var propertyCount = 10;
+        var propertyInterval = 1000;
+        for(var i = 0; i < _tags.length; i++) {
+          var tag = _tags[i];
+          properties[tag] = [];
+          for(var j = 0; j < propertyCount; j++) {
+            var timestamp = new Date(startDate.getTime() + j * propertyInterval)
+            properties[tag].push([
+              "Test Property #" + j, // property name
+              toUtcString(timestamp), // timestamp
+              j, // value
+              "Good" // quality, the terms "Good", "Bad", "NoData" can be used and will be translated to the proper OPC qualities
+            ]);
+          }
+        }
+        console.log("Properties", properties);
+        
+        $.ajax({
+          url: _baseUrl + "/storeData",
+          method: "POST",
+          data: JSON.stringify({
+            "sessionToken": _sessionToken,
+            "tvqs": tvqs,
+            "properties": properties,
+            "annotations": annotations
+          })
+        }).done(function(data) {
+          console.log('storeData', data);
+        });
+      },
+      "keepAlive": function() {
+        $.ajax({
+          url: _baseUrl + "/keepAlive",
+          method: "POST",
+          data: JSON.stringify({
+            "sessionToken": _sessionToken
+          })
+        }).done(function(data) {
+          console.log("keepAlive", data);
+        });
+      },
+      "revokeSessionToken": function() {
+        $.ajax({
+          url: _baseUrl + "/revokeSessionToken",
+          method: "POST",
+          data: JSON.stringify({
+            "sessionToken": _sessionToken
+          })
+        }).done(function(data) {
+          console.log("revokeSessionToken", data);
+          
+          sessionToken = null;
+        });
+      }
+    }, {
+      "getDataSets": function() {
+        $.ajax({
+          url: _baseUrl + "/getDataSets",
+          method: "POST",
+          data: JSON.stringify({
+            "apiToken": _apiToken,
+            "historian": _historian
+          })
+        }).done(function(data) {
+          console.log("getDataSets", data);
+        });
+      },
+      "updateSettings": function() {
+        $.ajax({
+          url: _baseUrl + "/updateSettings",
+          method: "POST",
+          data: JSON.stringify({
+            "sessionToken": _sessionToken,
+            "settings": {
+              "clientTimeout": 10000, // milliseconds (5 minutes)
+              "fileSize": 16,
+              "autoCreateDataSets": false
+            }
+          })
+        }).done(function(data) {
+          console.log("updateSettings", data);
+        });
+      },
+      "configureTags": function() {
+        var configuration = [{
+          "transform": "Value = if(Value <= 0, Value * 0.1, Value), Quality = if(Value == 0, 'Bad', Quality)",
+          "normalize": "100 milliseconds"
+        }, {
+          "transform": "Value = if(Value % 2 == 0, Value*(9/5)+32, Value), Quality = if(Value == 0, 'Bad', Quality)",
+          "normalize": "0:00:01"
+            }, {
+          "transform": "Value = if(Value == 5, 'Hello World', Value), Quality = if(Value == 0, 'Bad', Quality)",
+          "normalize": "1 second"
+        }];
+        
+        var tags = {};
+        for(var i = 0; i < _tags.length; i++)
+          tags[_tags[i]] = configuration[i % configuration.length];
+        console.log('tags', tags);
+        
+        $.ajax({
+          url: _baseUrl + "/configureTags",
+          method: "POST",
+          data: JSON.stringify({
+            "sessionToken": _sessionToken,
+            "tags": tags
+          })
+        }).done(function(data) {
+          console.log("configureTags", data);
+        });
+      },
+      "noData": function() {
+        $.ajax({
+          url: _baseUrl + "/noData",
+          method: "POST",
+          data: JSON.stringify({
+            "sessionToken": _sessionToken,
+            "tags": _tags
+          })
+        }).done(function(data) {
+          console.log("noData", data);
+        });
+      },
+      "createNewFile": function() {
+        $.ajax({
+          url: _baseUrl + "/createNewFile",
+          method: "POST",
+          data: JSON.stringify({
+            "sessionToken": _sessionToken,
+            "dataSet": "WebAPI",
+            "fileTime": toUtcString(new Date())
+          })
+        }).done(function(data) {
+          console.log("createNewFile", data);
+        });
+      },
+      "fileRollOver": function() {
+        $.ajax({
+          url: _baseUrl + "/fileRollOver",
+          method: "POST",
+          data: JSON.stringify({
+            "sessionToken": _sessionToken,
+            "dataSet": "WebAPI",
+            "fileTime": toUtcString(new Date())
+          })
+        }).done(function(data) {
+          console.log("fileRollOver", data);
+        });
+      },
+      "version": function() {
+        $.ajax({
+          url: _baseUrl + "/version",
+          method: "POST",
+            data: JSON.stringify({})
+        }).done(function(data) {
+          console.log("version", data);
+        });
+      },
+      "badMethodName": function() {
+        $.ajax({
+          url: _baseUrl + "/badMethodName",
+          method: "POST",
+          data: JSON.stringify({
+            "sessionToken": _sessionToken
+          })
+        }).done(function(data) {
+          console.log("badMethodName", data);
+        });
+      }
+    }];
+    
+    function toUtcString(date) {
+      var format = 'YYYY-MM-DD\THH:mm:ss.SSSSSSS';
+      var now = new moment(date);
+      return now.utc().format(format) + 'Z';
+    }
+  </script>
+  <script>
+    $(function() {
+      // add buttons to screen
+      var buttons = "";
+      for(var key in _apiMethods[0])
+        buttons += '<button id="' + key + '" data-index="0">' + key + '</button><br>';
+      $('#script-actions #primary-methods .buttons').append(buttons);
+      
+      // add buttons to screen
+      var buttons = "";
+      for(var key in _apiMethods[1])
+        buttons += '<button id="' + key + '" data-index="1">' + key + '</button><br>';
+      $('#script-actions #supplemental-methods .buttons').append(buttons);
+      
+      // process button click event
+      $("body").on("click", "button", function(e) {
+        var $button = $(this);
+        var id = $button.attr("id");
+        var index = $button.data("index");
+        _apiMethods[index][id]();
+      });
+      
+      // add source to right side of page
+      $("#main-script-container").text($("#main-script").text());
+    });
+  </script>
+</head>
+<body>
+  <div id="screen-left">
+    <h1>Store And Forward API Demo</h1>
+    <p>Before using the API, the proper endpoints must be turned on to listen for requests.<br>This demo has been configured to write data to a store and forward service and historian running on the local machine.</p>
+    <ol>
+      <li>Open the "Canary Admin" program.</li>
+      <li>Click on the "Store and Forward" info box on the home screen.</li>
+      <li>Click on "Configuration" in the bottom tab control.</li>
+      <li>Click on "Endpoints" in the side tab control.</li>
+      <li>Turn on the Write API (Web API) endpoint. Note the port number. This is the port that will be listening for the Web API requests.</li>
+    </ol>
+    <p>Click on the buttons to execute method calls to an api on the local machine. Hit the F12 key to open the browser console window to view the results of each method call.</p>
+    <ol>
+      <li>Call "GetSessionToken" and keep the "sessionToken" for subsequent calls. Configure the api token used in this call in the javascript of this file. If none is given the Store And Forward Service will use the API Token configured in its settings.</li>
+      <li>Call "StoreData" with a valid "sessionToken" as often as necessary.</li>
+      <li>Call "KeepAlive" every 15-30 seconds for long running tasks to prevent tokens from expiring,<br> <b>OR</b> make calls to revoke tokens when finished writing data.</li>
+    </ol>
+    <div id="script-actions">
+      <div id="primary-methods">
+        <h3>Primary</h3>
+        <div class="buttons"></div>
+      </div>
+      <div id="supplemental-methods">
+        <h3>Supplemental</h3>
+        <div class="buttons"></div>
+      </div>
+    </div>
+  </div>
+  <div id="screen-right">
+    <h1>Page Source</h1>
+    <p>This source uses jQuery and moment.js libraries.</p>
+    <div id="main-script-container"></div>
+  </div>
+</body>
+</html>
