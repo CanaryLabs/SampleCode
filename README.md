@@ -5,6 +5,9 @@ Company Website
 Here you can download code samples for writing custom integrations with the Canary Labs enterprise historian
 
 ## Version 24
+### Writing data natively (.NET client)
+[.NET Client](https://github.com/CanaryLabs/SampleCode/tree/master/Samples/V24/Data%20Storage/.NET%20Client)
+
 ### Reading data natively (.NET client)
 [.NET Client](https://github.com/CanaryLabs/SampleCode/tree/master/Samples/V24/Data%20Retrieval/.NET%20Client)
 

@@ -1,8 +1,16 @@
-﻿This application requires references to the latest version of the following dlls.
+﻿In order for this application to work, the following dlls need copied from the Canary Admin folder of the Canary program files installation directory and referenced by this project.
 
-Canary.StoreAndForward2.Grpc.Api.dll -> Found in the Canary Admin folder of the Canary program files installation directory
-
-Canary.StoreAndForward2.Grpc.Api.Helper.dll -> Both found in the StoreAndForward folder of the Canary program files installation directory
+Canary.StoreAndForward2.Grpc.Api.dll
+Canary.StoreAndForward2.Grpc.Api.Helper.dll
+Canary.Utility.CanaryClientHelper.dll
+Canary.Utility.CanaryShared.dll
+Canary.Utility.GrpcHelper.dll
+Canary.Utility.JsonCore.dll
+Canary.Utility.LogCore.dll
+Canary.Utility.PathCore.dll
 Canary.Utility.ProtobufSharedTypes.dll
+Canary.Utility.SecurityCore.dll
+Canary.Utility.SettingsCore.dll
+Canary.Utility.TaskCore.dll
 
 The proto files contained within these dlls can be found in API\Protos\StoreAndForward.
