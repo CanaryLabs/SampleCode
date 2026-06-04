@@ -2,6 +2,9 @@
 
 This guide explains how to create custom calculation functions for Canary using the Function Plugin SDK.
 
+Note:
+> This will work for 26.3 and newer
+
 ## Overview
 
 The Canary Calculations Service allows you to extend its functionality by creating custom function plugins. You can implement your own calculation functions that integrate seamlessly with the Canary UI and calculations engine.
