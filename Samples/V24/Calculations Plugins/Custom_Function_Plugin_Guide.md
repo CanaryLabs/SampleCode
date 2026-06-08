@@ -48,9 +48,9 @@ namespace YourCompany.Calculations.FunctionPlugin.Custom
     public class CustomFunctionPlugin : IStaticFunctionPlugin
     {
         /// <summary>
-        /// Optional namespace prepended to all function names in this plugin.
+        /// Required namespace prepended to all function names in this plugin.
         /// Use alphanumeric characters and underscores only, must start with letter or underscore.
-        /// Example: If Namespace = "Custom" and function name = "Add", it's called as "CustomAdd()"
+        /// Example: If Namespace = "Custom" and function name = "Add", it's called as "Custom_Add()"
         /// </summary>
         public string Namespace { get; } = "Custom";
 
@@ -107,7 +107,7 @@ public class AddFunction : IStaticFunction
     }
 
     public async Task<(object value, ushort quality)> EvaluateAsync(
-        FunctionArgument[] args, 
+        FunctionArgument[] args,
         FunctionEvaluationProperties evaluationProperties)
     {
         // Validate argument count
@@ -115,12 +115,26 @@ public class AddFunction : IStaticFunction
             throw new FunctionArgumentValidationException("Add requires exactly 2 arguments");
 
         // Evaluate and validate first argument
-        if (await args[0].EvaluateAsync() is not double value1)
+        double value1;
+        try
+        {
+            value1 = Convert.ToDouble(await args[0].EvaluateAsync());
+        }
+        catch
+        {
             throw new FunctionArgumentValidationException("First argument must be a number");
+        }
 
         // Evaluate and validate second argument
-        if (await args[1].EvaluateAsync() is not double value2)
+        double value2;
+        try
+        {
+            value2 = Convert.ToDouble(await args[1].EvaluateAsync());
+        }
+        catch
+        {
             throw new FunctionArgumentValidationException("Second argument must be a number");
+        }
 
         // Perform calculation
         double result = value1 + value2;
@@ -163,7 +177,7 @@ new FunctionParameterSingle(
     IsOptional: false,                // Optional: is this parameter optional?
     IsRepeatable: false,              // Optional: can this parameter appear multiple times?
     MustBeConstant: false,            // Optional: must the argument be a constant value?
-    ShouldSkipTypeValidation: false   // Optional: skip type checking in UI?
+    ShouldSkipTypeValidation: false   // Optional: skip type checking in UI and runtime?
 )
 ```
 

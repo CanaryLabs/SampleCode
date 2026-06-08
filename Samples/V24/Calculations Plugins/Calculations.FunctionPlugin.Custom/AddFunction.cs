@@ -34,12 +34,26 @@ public class AddFunction : IStaticFunction
             throw new FunctionArgumentValidationException("Add requires exactly 2 arguments");
 
         // Evaluate and validate first argument
-        if (await args[0].EvaluateAsync() is not double value1)
+        double value1;
+        try
+        {
+            value1 = Convert.ToDouble(await args[0].EvaluateAsync());
+        }
+        catch
+        {
             throw new FunctionArgumentValidationException("First argument must be a number");
+        }
 
         // Evaluate and validate second argument
-        if (await args[1].EvaluateAsync() is not double value2)
+        double value2;
+        try
+        {
+            value2 = Convert.ToDouble(await args[1].EvaluateAsync());
+        }
+        catch
+        {
             throw new FunctionArgumentValidationException("Second argument must be a number");
+        }
 
         // Perform calculation
         double result = value1 + value2;

@@ -5,9 +5,9 @@ namespace YourCompany.Calculations.FunctionPlugin.Custom
     public class CustomFunctionPlugin : IStaticFunctionPlugin
     {
         /// <summary>
-        /// Optional namespace prepended to all function names in this plugin.
+        /// Required namespace prepended to all function names in this plugin.
         /// Use alphanumeric characters and underscores only, must start with letter or underscore.
-        /// Example: If Namespace = "Custom" and function name = "Add", it's called as "CustomAdd()"
+        /// Example: If Namespace = "Custom" and function name = "Add", it's called as "Custom_Add()"
         /// </summary>
         public string Namespace { get; } = "Custom";
 
