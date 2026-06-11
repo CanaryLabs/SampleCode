@@ -73,8 +73,8 @@ namespace YourCompany.Calculations.FunctionPlugin.Custom
 **Namespace Rules:**
 - May contain only alphanumeric characters and underscores
 - Must begin with a letter or underscore
-- Leave empty (`""`) if you don't want a namespace prefix
-- When non-empty, the namespace is prepended to function names with no separator
+- The namespace may not be empty
+- The namespace is prepended to function names with no separator
 
 ### IStaticFunction
 
