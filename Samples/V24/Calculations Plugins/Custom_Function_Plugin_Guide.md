@@ -110,10 +110,6 @@ public class AddFunction : IStaticFunction
         FunctionArgument[] args,
         FunctionEvaluationProperties evaluationProperties)
     {
-        // Validate argument count
-        if (args.Length != 2)
-            throw new FunctionArgumentValidationException("Add requires exactly 2 arguments");
-
         // Evaluate and validate first argument
         double value1;
         try
@@ -293,13 +289,6 @@ This method executes your function with the provided arguments.
        throw new FunctionArgumentValidationException("Expected a number");
    ```
 
-3. **Error Handling**: Throw `FunctionArgumentValidationException` for invalid arguments:
-   ```csharp
-   if (args.Length != expectedCount)
-       throw new FunctionArgumentValidationException(
-           $"Function expects {expectedCount} arguments, got {args.Length}");
-   ```
-
 ## Example: Complete Boolean Logic Function
 
 Here's a complete example implementing an OR function:
@@ -335,9 +324,6 @@ namespace YourCompany.Calculations.FunctionPlugin.Custom
             FunctionArgument[] args, 
             FunctionEvaluationProperties evaluationProperties)
         {
-            if (args.Length == 0)
-                throw new FunctionArgumentValidationException("Or requires at least one condition");
-
             foreach (var arg in args)
             {
                 if (await arg.EvaluateAsync() is not bool boolValue)
@@ -398,10 +384,6 @@ Always validate inputs and provide clear error messages:
 ```csharp
 public async Task<(object, ushort)> EvaluateAsync(...)
 {
-    if (args.Length != 2)
-        throw new FunctionArgumentValidationException(
-            "Function expects 2 arguments");
-
     var value1 = await args[0].EvaluateAsync();
     if (value1 == null)
         throw new FunctionArgumentValidationException(

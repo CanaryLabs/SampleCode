@@ -29,10 +29,6 @@ public class AddFunction : IStaticFunction
         FunctionArgument[] args,
         FunctionEvaluationProperties evaluationProperties)
     {
-        // Validate argument count
-        if (args.Length != 2)
-            throw new FunctionArgumentValidationException("Add requires exactly 2 arguments");
-
         // Evaluate and validate first argument
         double value1;
         try
