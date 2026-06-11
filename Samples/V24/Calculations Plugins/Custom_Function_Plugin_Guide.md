@@ -74,7 +74,7 @@ namespace YourCompany.Calculations.FunctionPlugin.Custom
 - May contain only alphanumeric characters and underscores
 - Must begin with a letter or underscore
 - The namespace may not be empty
-- The namespace is prepended to function names with no separator
+- The namespace is prepended to function names with an underscore
 
 ### IStaticFunction
 
