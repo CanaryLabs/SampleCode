@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <AssemblyName>Calculations.FunctionPlugin.Custom</AssemblyName>
+    <RootNamespace>Calculations.FunctionPlugin.Custom</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Reference Include="Canary.Calculations.FunctionPlugin.Base">
+      <HintPath>..\..\DLLs\Canary.Calculations.FunctionPlugin.Base.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+</Project>

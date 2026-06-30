@@ -3,6 +3,12 @@
 ##
 ## Get latest from https://github.com/github/gitignore/blob/master/VisualStudio.gitignore
 
+# Developer-supplied Canary DLLs go in DLLs/<Version>/ but must never be committed.
+# Keep the folder (and its placeholder) tracked, ignore everything else dropped in.
+DLLs/**
+!DLLs/
+!DLLs/.put_dlls_here
+
 # User-specific files
 *.suo
 *.user

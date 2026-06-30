@@ -1,0 +1,63 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+	<PropertyGroup>
+		<TargetFramework>net8.0</TargetFramework>
+		<OutputType>Exe</OutputType>
+		<RootNamespace>ReadData</RootNamespace>
+		<AssemblyName>ReadData</AssemblyName>
+		<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+		<Nullable>enable</Nullable>
+	</PropertyGroup>
+	<ItemGroup>
+		<PackageReference Include="Google.Protobuf" Version="3.26.1" />
+		<PackageReference Include="Grpc.Core" Version="2.46.6" />
+		<PackageReference Include="Grpc.Net.Client" Version="2.62.0" />
+		<PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
+		<PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+		<PackageReference Include="Nito.AsyncEx" Version="5.1.2" />
+		<PackageReference Include="System.Data.DataSetExtensions" Version="4.5.0" />
+		<PackageReference Include="System.ServiceModel.Primitives" Version="8.0.0" />
+		<PackageReference Include="System.ServiceModel.Http" Version="8.0.0" />
+		<PackageReference Include="System.ServiceModel.Duplex" Version="6.0.0" />
+		<PackageReference Include="System.ServiceModel.NetTcp" Version="8.0.0" />
+		<PackageReference Include="System.ServiceModel.Security" Version="6.0.0" />
+		<PackageReference Include="System.ServiceModel.Federation" Version="8.0.0" />
+	</ItemGroup>
+	<ItemGroup>
+	  <Reference Include="Canary.Utility.CanaryClientHelper">
+	    <HintPath>..\..\DLLs\Canary.Utility.CanaryClientHelper.dll</HintPath>
+	  </Reference>
+	  <Reference Include="Canary.Utility.CanaryShared">
+	    <HintPath>..\..\DLLs\Canary.Utility.CanaryShared.dll</HintPath>
+	  </Reference>
+	  <Reference Include="Canary.Utility.GrpcHelper">
+	    <HintPath>..\..\DLLs\Canary.Utility.GrpcHelper.dll</HintPath>
+	  </Reference>
+	  <Reference Include="Canary.Utility.JsonCore">
+	    <HintPath>..\..\DLLs\Canary.Utility.JsonCore.dll</HintPath>
+	  </Reference>
+	  <Reference Include="Canary.Utility.LogCore">
+	    <HintPath>..\..\DLLs\Canary.Utility.LogCore.dll</HintPath>
+	  </Reference>
+	  <Reference Include="Canary.Utility.PathCore">
+	    <HintPath>..\..\DLLs\Canary.Utility.PathCore.dll</HintPath>
+	  </Reference>
+	  <Reference Include="Canary.Utility.PerformanceTracker">
+	    <HintPath>..\..\DLLs\Canary.Utility.PerformanceTracker.dll</HintPath>
+	  </Reference>
+	  <Reference Include="Canary.Utility.ProtobufSharedTypes">
+	    <HintPath>..\..\DLLs\Canary.Utility.ProtobufSharedTypes.dll</HintPath>
+	  </Reference>
+	  <Reference Include="Canary.Utility.SecurityCore">
+	    <HintPath>..\..\DLLs\Canary.Utility.SecurityCore.dll</HintPath>
+	  </Reference>
+	  <Reference Include="Canary.Utility.SettingsCore">
+	    <HintPath>..\..\DLLs\Canary.Utility.SettingsCore.dll</HintPath>
+	  </Reference>
+	  <Reference Include="Canary.Views.Grpc.Api">
+	    <HintPath>..\..\DLLs\Canary.Views.Grpc.Api.dll</HintPath>
+	  </Reference>
+	  <Reference Include="Canary.Views.Grpc.Common">
+	    <HintPath>..\..\DLLs\Canary.Views.Grpc.Common.dll</HintPath>
+	  </Reference>
+	</ItemGroup>
+</Project>
