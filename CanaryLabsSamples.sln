@@ -19,9 +19,9 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StoreAndForwardNETClient", 
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "V26", "V26", "{8ED0E284-B0FF-C14F-852D-51F7BAB48E83}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ViewsNETClient", "V26\ViewsNETClient\ViewsNETClient.csproj", "{EBD3C1DD-1489-4B16-8304-AA00F6C638A8}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ViewsClient", "V26\ViewsClient\ViewsClient.csproj", "{EBD3C1DD-1489-4B16-8304-AA00F6C638A8}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StoreAndForwardNETClient", "V26\StoreAndForwardNETClient\StoreAndForwardNETClient.csproj", "{FEBEC334-B12E-4782-B5D7-BE04342F61CA}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StoreAndForwardClient", "V26\StoreAndForwardClient\StoreAndForwardClient.csproj", "{FEBEC334-B12E-4782-B5D7-BE04342F61CA}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CustomCalculationFunctionPlugin", "V26\CustomCalculationFunctionPlugin\CustomCalculationFunctionPlugin.csproj", "{140A2AA9-82E8-409A-BD09-0009B9B51E0E}"
 EndProject

@@ -2,7 +2,7 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace SAF_Examples
+namespace StoreAndForwardClient
 {
     class Program
     {

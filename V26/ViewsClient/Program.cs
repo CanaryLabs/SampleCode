@@ -10,7 +10,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using static Canary.Views.Grpc.Api.CanaryViewsApiService;
 
-namespace ReadData
+namespace ViewsClient
 {
     internal class Program
     {

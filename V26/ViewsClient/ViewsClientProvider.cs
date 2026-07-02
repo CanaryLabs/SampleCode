@@ -6,7 +6,7 @@ using System;
 using System.Threading.Tasks;
 using static Canary.Views.Grpc.Api.CanaryViewsApiService;
 
-namespace ReadData
+namespace ViewsClient
 {
     public class ViewsClientConnectionContext : IGrpcClientContext<CanaryViewsApiServiceClient>
     {

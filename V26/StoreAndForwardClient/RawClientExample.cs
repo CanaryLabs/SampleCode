@@ -3,7 +3,7 @@ using Canary.StoreAndForward2.Grpc.Api.Helper;
 using Canary.Utility.LogCore;
 using Canary.Utility.ProtobufSharedTypes;
 
-namespace SAF_Examples
+namespace StoreAndForwardClient
 {
     public class RawClientExample
     {

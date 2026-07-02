@@ -1,6 +1,6 @@
 using Canary.Calculations.FunctionPlugin.Base;
 
-namespace Calculations.FunctionPlugin.Custom;
+namespace YourCompany.Calculations.FunctionPlugin.Custom;
 
 public class AddFunction : IStaticFunction
 {

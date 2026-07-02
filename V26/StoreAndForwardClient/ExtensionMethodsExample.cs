@@ -3,7 +3,7 @@ using Canary.StoreAndForward2.Grpc.Api.Helper;
 using Canary.Utility.LogCore;
 using Canary.Utility.ProtobufSharedTypes;
 
-namespace SAF_Examples
+namespace StoreAndForwardClient
 {
     // This class uses extension methods that simplify tag configuration and storing data
     public class ExtensionMethodsExample
