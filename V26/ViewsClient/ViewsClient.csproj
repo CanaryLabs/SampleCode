@@ -1,0 +1,33 @@
+<Project Sdk="Microsoft.NET.Sdk">
+	<PropertyGroup>
+		<TargetFramework>net8.0</TargetFramework>
+		<OutputType>Exe</OutputType>
+		<RootNamespace>$(MSBuildProjectName)</RootNamespace>
+		<AssemblyName>$(MSBuildProjectName)</AssemblyName>
+		<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+		<Nullable>enable</Nullable>
+	</PropertyGroup>
+	<ItemGroup>
+	  <Reference Include="Google.Protobuf">
+	    <HintPath>..\..\DLLs\Google.Protobuf.dll</HintPath>
+	  </Reference>
+	  <Reference Include="Grpc.Core.Api">
+	    <HintPath>..\..\DLLs\Grpc.Core.Api.dll</HintPath>
+	  </Reference>
+	  <Reference Include="Canary.Utility.CanaryClientHelper">
+	    <HintPath>..\..\DLLs\Canary.Utility.CanaryClientHelper.dll</HintPath>
+	  </Reference>
+	  <Reference Include="Canary.Utility.GrpcHelper">
+	    <HintPath>..\..\DLLs\Canary.Utility.GrpcHelper.dll</HintPath>
+	  </Reference>
+	  <Reference Include="Canary.Utility.ProtobufSharedTypes">
+	    <HintPath>..\..\DLLs\Canary.Utility.ProtobufSharedTypes.dll</HintPath>
+	  </Reference>
+	  <Reference Include="Canary.Views.Grpc.Api">
+	    <HintPath>..\..\DLLs\Canary.Views.Grpc.Api.dll</HintPath>
+	  </Reference>
+	  <Reference Include="Canary.Views.Grpc.Common">
+	    <HintPath>..\..\DLLs\Canary.Views.Grpc.Common.dll</HintPath>
+	  </Reference>
+	</ItemGroup>
+</Project>
