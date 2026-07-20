@@ -91,8 +91,10 @@ namespace ReadData
             try
             {
                 if (_client != null)
+                {
                     _client.ReleaseClientConnectId(_appString, _userString, _cci);
-                _client.Close();
+                    _client.Close();
+                }
             }
             catch
             {
