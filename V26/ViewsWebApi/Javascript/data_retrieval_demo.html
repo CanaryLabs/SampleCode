@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Views API Demo</title>
+  <meta charset="UTF-8">
+  <style>
+    html, body {
+      padding:0;
+      margin:0;
+    }
+    * {
+      font-family: "calibri"
+    }
+    h1 {
+      margin:0;
+      padding:0.5rem;
+    }
+    p {
+      margin:0;
+      padding:0.5rem;
+      max-width:600px;
+    }
+    ol {
+      margin:0;
+      padding:0.5rem;
+      padding-left:2.5rem;
+      margin-bottom:1.5rem;
+      max-width:600px;
+    }
+    li {
+      margin:0;
+      padding:0;
+    }
+    button {
+      margin:0;
+      margin-bottom:1rem;
+      padding:0 1rem;
+      width:140px;
+    }
+    #screen-left {
+      position:absolute;
+      left:0;
+      width:50%;
+      height:100%;
+      overflow:auto;
+      box-sizing:border-box;
+      border-right:1px solid rgba(0,0,0,0.2);
+      padding:1rem;
+    }
+    #screen-right {
+      position:absolute;
+      left:50%;
+      width:50%;
+      height:100%;
+      overflow:auto;
+      border-right:2px solid #555;
+      box-sizing:border-box;
+      padding:1rem;
+    }
+    #main-script-container {
+      white-space:pre;
+      background:#eee;
+      font-family:monospace;
+    }
+    #script-actions h3 {
+      text-align:center;
+    }
+    #script-actions > div {
+      padding:0rem 1rem;
+      background:#eee;
+      display:inline-block;
+      vertical-align:top;
+      margin-right:0.5rem;
+    }
+    #script-actions #primary-methods button {
+      font-weight:bold;
+      text-decoration:underline;
+    }
+    #results-container {
+      background:#eee;
+      font-family:monospace;
+      max-height:45%;
+      overflow:auto;
+      padding:0 0.5rem;
+    }
+    #results-container .result {
+      white-space:pre;
+      font-family:monospace;
+      border-bottom:1px solid rgba(0,0,0,0.2);
+      padding:0.5rem 0;
+    }
+    #results-container .result-error {
+      color:#b00;
+    }
+    #clear-results {
+      width:auto;
+      margin-bottom:0;
+    }
+  </style>
+  <!--
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+  -->
+  
+  <script src="jquery.min.js"></script>
+  
+  <script id="main-script">
+    // variables
+    var _apiToken = "XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX"; // api token created by an administrator in the Canary Identity service
+    var _timeZone = "Eastern Standard Time"; //"Central Standard Time",
+    var _liveDataToken = null;
+    var _tags = [];
+    var _baseUrl = "https://localhost:55236/api/v2";
+    
+    // api methods
+    var _apiMethods = [{
+      "getTimeZones": function() {
+        $.ajax({
+          url: _baseUrl + "/getTimeZones",
+          method: "POST"
+        }).done(function(data) {
+          console.log("getTimeZones", data);
+        });
+      },
+      "browseTags": function(continuation) {
+        $.ajax({
+          url: _baseUrl + "/browseTags",
+          method: "POST", 
+          data: JSON.stringify({
+            "apiToken": _apiToken,
+            "deep": true,
+            "search": "{Diagnostics}",
+            "maxSize": 10 // limit the number of tags used to get data
+            //"path": "optional",
+            //"continuation": continuation || null
+          })
+        }).done(function(data) {
+          console.log("browseTags", data);
+          
+          // recursively browse more tags
+          //if(data.continuation != null)
+          //  _apiMethods[0]["browseTags"](data.continuation);
+          
+          // set tags
+          _tags = data.tags;
+        });
+      },
+      "getCurrentValues": function() {
+        if(_tags.length == 0) {
+          alert('Call "BrowseTags" first to build an array of tags used to get data.');
+          return;
+        }
+        
+        $.ajax({
+          url: _baseUrl + "/getTagData2",
+          method: "POST",
+          data: JSON.stringify({
+            "apiToken": _apiToken,
+            "timeZone": _timeZone,
+            "tags": _tags
+            // NOTICE: do not include any additional parameters when requesting current value
+          })
+        }).done(function(data) {
+          console.log("getCurrentValues", data);
+        });
+      },
+      "getRawData": function(continuation) {
+        if(_tags.length == 0) {
+          alert('Call "BrowseTags" first to build an array of tags used to get data.');
+          return;
+        }
+        
+        // forward processed data
+        $.ajax({
+          url: _baseUrl + "/getTagData2",
+          method: "POST",
+          data: JSON.stringify({
+            "apiToken": _apiToken,
+            "timeZone": _timeZone,
+            "tags": _tags,
+            "startTime": "Now - 24 Hours", //"2017-12-01T12:00:00.0000000",
+            "endTime": "Now", //"2017-12-14T12:00:00.0000000",
+            "maxSize": 10000,
+            "continuation": continuation || null
+            // NOTICE: do not include aggregate parameters when requesting raw data
+          })
+        }).done(function(data) {
+          console.log("getRawData", data);
+          
+          // call back into function if we have a continuation
+          if(data.continuation != null) {
+            console.log("CONTINUATION: getRawData", data.continuation);
+            _apiMethods[0]["getRawData"](data.continuation);
+          }
+          else
+            console.log("FINISHED: getRawData");
+        }).fail(function(error) {
+          console.log("error", error);
+        });
+      },
+      "getProcessedData": function(continuation) {
+        if(_tags.length == 0) {
+          alert('Call "BrowseTags" first to build an array of tags used to get data.');
+          return;
+        }
+        
+        // forward processed data
+        $.ajax({
+          url: _baseUrl + "/getTagData2",
+          method: "POST",
+          data: JSON.stringify({
+            "apiToken": _apiToken,
+            "timeZone": _timeZone,
+            "tags": _tags,
+            "startTime": "Now - 1 Day", //"2017-12-01T12:00:00.0000000",
+            "endTime": "Now", //"2017-12-14T12:00:00.0000000",
+            "aggregateName": "TimeAverage2",
+            "aggregateInterval": "1 Hour",
+            "maxSize": 10000,
+            "continuation": continuation || null
+          })
+        }).done(function(data) {
+          console.log("getProcessedData", data);
+          
+          // call back into function if we have a continuation
+          if(data.continuation != null) {
+            console.log("CONTINUATION: getProcessedData", data.continuation);
+            _apiMethods[0]["getProcessedData"](data.continuation);
+          }
+          else
+            console.log("FINISHED: getProcessedData");
+        }).fail(function(error) {
+          console.log("error", error);
+        });
+      },
+    }, {
+      "browseNodes": function(path) {
+        $.ajax({
+          url: _baseUrl + "/browseNodes",
+          method: "POST",
+          data: JSON.stringify({
+            "apiToken": _apiToken,
+            "path": path || ""
+          })
+        }).done(function(data) {
+          console.log("browseNodes", data);
+          
+          // recursively browse into the first node of each request
+          var nodes = data.nodes;
+          var keys = Object.keys(nodes);
+          if(keys.length > 0) {
+            var node = nodes[keys[0]];
+            if(node.hasNodes)
+              _apiMethods[1]["browseNodes"](node.fullPath);
+          }
+        });
+      },
+      "getAggregates": function() {
+        $.ajax({
+          url: _baseUrl + "/getAggregates",
+          method: "POST"
+        }).done(function(data) {
+          console.log("getAggregates", data);
+        });
+      },
+      "getQualities": function(qualities) {
+        $.ajax({
+          url: _baseUrl + "/getQualities",
+          method: "POST",
+          data: JSON.stringify({
+            "apiToken": _apiToken,
+            "qualities": qualities != undefined ? qualities : [
+              192,
+              "193",
+              32768
+            ]
+          })
+        }).done(function(data) {
+          console.log("getQualities", data);
+        });
+      },
+      "getTagProperties": function() {
+        $.ajax({
+          url: _baseUrl + "/getTagProperties",
+          method: "POST",
+          data: JSON.stringify({
+            "apiToken": _apiToken,
+            "tags": _tags
+          })
+        }).done(function(data) {
+          console.log("getTagProperties", data);
+        });
+      },
+      "getLiveDataToken": function() {
+        if(_tags.length == 0) {
+          alert('Call "BrowseTags" first to build an array of tags used to get data.');
+          return;
+        }
+        
+        $.ajax({
+          url: _baseUrl + "/getLiveDataToken",
+          method: "POST",
+          data: JSON.stringify({
+            "apiToken": _apiToken,
+            "timeZone": _timeZone,
+            "tags": _tags,
+            "mode": "AllValues",
+            "includeQuality": true
+          })
+        }).done(function(data) {
+          console.log("getLiveDataToken", data);
+          
+          _liveDataToken = data.liveDataToken;
+        });
+      },
+      "getLiveData": function(continuation) {
+        $.ajax({
+          url: _baseUrl + "/getLiveData",
+          method: "POST",
+          data: JSON.stringify({
+            "liveDataToken": _liveDataToken,
+            "continuation": continuation || null
+          })
+        }).done(function(data) {
+          console.log("getLiveData", data);
+        });
+      },
+      "revokeLiveDataToken": function() {
+        $.ajax({
+          url: _baseUrl + "/revokeLiveDataToken",
+          method: "POST",
+          data: JSON.stringify({
+            "liveDataToken": _liveDataToken
+          })
+        }).done(function(data) {
+          console.log("revokeLiveDataToken", data);
+          
+          _liveDataToken = null;
+        });
+      }
+    }];
+  </script>
+  <script>
+    $(function() {
+      // add buttons
+      var buttons = "";
+      for(var key in _apiMethods[0])
+        buttons += '<button id="' + key + '" data-index="0">' + key + '</button><br>';
+      $('#script-actions #primary-methods .buttons').append(buttons);
+      
+      var buttons = "";
+      for(var key in _apiMethods[1])
+        buttons += '<button id="' + key + '" data-index="1">' + key + '</button><br>';
+      $('#script-actions #supplemental-methods .buttons').append(buttons);
+      
+      // add event listeners
+      $('body').on('click', '#script-actions button', function(e) {
+        var $button = $(this);
+        var id = $button.attr("id");
+        var index = $button.data("index");
+        _apiMethods[index][id]();
+      });
+      
+      // show the response of each method call in the results section
+      $(document).ajaxComplete(function(event, xhr, settings) {
+        var method = settings.url.split("/").pop();
+        var response = null;
+        try {
+          response = JSON.parse(xhr.responseText);
+        } catch(e) { }
+
+        var text;
+        if(response != null)
+          text = JSON.stringify(response, null, 2);
+        else if(xhr.status == 0)
+          text = "No response. Check that the Web API endpoint is turned on and that the browser trusts its certificate (open " + _baseUrl + " in a new tab once).";
+        else
+          text = xhr.status + " " + xhr.statusText + "\n" + (xhr.responseText || "");
+
+        var maxLength = 20000;
+        if(text.length > maxLength)
+          text = text.substring(0, maxLength) + "\n... (truncated, see the browser console for the full response)";
+
+        var isError = xhr.status != 200 || response == null || (response.statusCode != undefined && response.statusCode != "Good");
+        var $result = $('<div class="result"></div>')
+          .toggleClass("result-error", isError)
+          .text(new Date().toLocaleTimeString() + "  " + method + "\n" + text);
+        $("#results-container").prepend($result);
+      });
+
+      $("#clear-results").on("click", function() {
+        $("#results-container").empty();
+      });
+
+      // add source to right side of page
+      $("#main-script-container").text($("#main-script").text());
+    });
+  </script>
+</head>
+<body>
+  <div id="screen-left">
+    <h1>Views API Demo</h1>
+    <p>Before using the API, the proper endpoints must be turned on to listen for requests. This demo has been configured to read data from a views service and historian running on the local machine.</p>
+    <ol>
+      <li>Open the "Canary Admin" program.</li>
+      <li>Click on the "Views" info box on the home screen.</li>
+      <li>Click on "Configuration" in the bottom tab control.</li>
+      <li>Click on "Endpoints" in the side tab control.</li>
+      <li>Turn on the (Web API) endpoint. Note the port number. This is the port that will be listening for the Web API requests.</li>
+    </ol>
+    <p>Requests are authenticated with an api token instead of a user name and password.</p>
+    <ol>
+      <li>Click on the "Identity" info box on the home screen.</li>
+      <li>Click on "Security" in the bottom tab control, then "API Tokens".</li>
+      <li>Create an api token and set "_apiToken" in the page source to its value. The token can also be sent as an "Authorization: Bearer" header.</li>
+    </ol>
+    <p>Click on the buttons to execute method calls to an api on the local machine. The results of each method call are shown in the "Results" section, and in the browser console (F12).</p>
+    <ol>
+      <li>Call "GetTimeZones" and set "_timeZone" to the "timezone" that should be used when returning timestamps.</li>
+      <li>Call "BrowseTags" to load a tag array used to retrieve data in subsequent calls.</li>
+      <li>Call "GetCurrentValue" to get current values of the tag array.</li>
+      <li>Call "GetRawData" to get raw data of the tag array.</li>
+      <li>Call "GetProcessedData" to get processed data of the tag array.</li>
+    </ol>
+    <div id="script-actions">
+      <div id="primary-methods">
+        <h3>Primary</h3>
+        <div class="buttons"></div>
+      </div>
+      <div id="supplemental-methods">
+        <h3>Supplemental</h3>
+        <div class="buttons"></div>
+      </div>
+    </div>
+  </div>
+  <div id="screen-right">
+    <h1>Results</h1>
+    <p>The response of each method call is shown here, newest first. <button id="clear-results">clear</button></p>
+    <div id="results-container"></div>
+    <h1>Page Source</h1>
+    <p>This source uses the jQuery library.</p>
+    <div id="main-script-container"></div>
+  </div>
+</body>
+</html>

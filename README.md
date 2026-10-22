@@ -27,7 +27,9 @@ SampleCode/
 └── V26/                                   Canary version 26 samples
     ├── CustomCalculationFunctionPlugin/   Custom calc function plugin
     ├── StoreAndForwardClient/
-    └── ViewsClient/
+    ├── StoreAndForwardWebApi/             Store & Forward Web API (JS)
+    ├── ViewsClient/
+    └── ViewsWebApi/                       Views Web API (JS)
 ```
 
 Each project folder is named for the Canary service and client technology it demonstrates
@@ -73,7 +75,7 @@ NuGet packages pinned in the `.csproj` and the Canary DLLs you copied into `DLLs
 
 # V26
 
-.NET 8 console samples (and a class-library plugin) for Canary 26.
+.NET 8 console samples, a class-library plugin, and browser/JavaScript Web API demos for Canary 26.
 
 ### Grpc .proto files and Documentation
 
@@ -148,6 +150,26 @@ See `Custom_Function_Plugin_Guide.md` in the project for the full development an
 **Copy into `DLLs/`:** (from `C:\Program Files\Canary\Calculations\`)
 
 - Canary.Calculations.FunctionPlugin.Base.dll
+
+### ViewsWebApi
+
+Browser/JavaScript demo (`data_retrieval_demo.html`) plus `data_retrieval_documentation.html` for the
+Views read Web API, served by the Views service at `https://localhost:55236/api/v2`. No DLLs required.
+
+Authenticates with an **API token** instead of a user name and password, so there is no
+`getUserToken`/`revokeUserToken` step. Create a token in the Canary Admin (Identity > Security > API Tokens)
+and set `_apiToken` in the page. Each request sends it as `apiToken` in the body (an
+`Authorization: Bearer <token>` header also works), and the time zone is sent per request as `timeZone`.
+
+### StoreAndForwardWebApi
+
+Browser/JavaScript demo (`data_storage_demo.html`) plus `data_storage_documentation.html` for the
+Store-and-Forward write Web API, served by the Store and Forward service at `https://localhost:55293/api/v1`.
+No DLLs required.
+
+Authenticates with an **API token** instead of a user name and password. Create a token in the
+Canary Admin (Identity > Security > API Tokens) and set `_apiToken` in the page. The token is passed to
+`getSessionToken` and `getDataSets`; later calls only need the `sessionToken`.
 
 ---
 
